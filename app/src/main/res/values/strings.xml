@@ -18,7 +18,7 @@
   -->
 
 <resources>
-    <string name="white_app_name" translatable="false">MDM Agent</string>
+    <string name="white_app_name" translatable="false">Al-Khwarizmi MDM</string>
     <string name="app_name" translatable="false">Al-Khwarizmi MDM</string>
     <string name="admin_title">Administrator</string>
     <string name="vendor" translatable="false">Al-Khwarizmi</string>
