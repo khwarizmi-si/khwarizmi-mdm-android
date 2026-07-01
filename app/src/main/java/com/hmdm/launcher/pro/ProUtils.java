@@ -21,6 +21,7 @@ package com.hmdm.launcher.pro;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AppOpsManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,13 +29,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.Process;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.R;
 import com.hmdm.launcher.helper.SettingsHelper;
+import com.hmdm.launcher.json.Application;
 import com.hmdm.launcher.json.ServerConfig;
+import com.hmdm.launcher.pro.service.CheckForegroundAppAccessibilityService;
 import com.hmdm.launcher.util.LegacyUtils;
 import com.hmdm.launcher.util.Utils;
 
@@ -56,10 +64,10 @@ public class ProUtils {
     private static final String SETTINGS_PACKAGE = "com.android.settings";
 
     public static boolean isPro() {
-        // Kiosk (COSU) works independently of this flag (gated by kioskModeRequired).
-        // Keep it false until overlay/usage-stats based features are wired in,
-        // so their permission prompts are not requested prematurely.
-        return false;
+        // Advanced features are implemented in this edition:
+        // - Kiosk/COSU (gated by kioskModeRequired)
+        // - Foreground app monitoring (overlay + usage stats)
+        return true;
     }
 
     public static boolean kioskModeRequired(Context context) {
@@ -75,16 +83,110 @@ public class ProUtils {
         // Stub
     }
 
-    // Start the service checking if the foreground app is allowed to the user (by usage statistics)
+    // Returns true if our accessibility service is currently enabled by the user
     public static boolean checkAccessibilityService(Context context) {
-        // Stub
-        return true;
+        try {
+            String enabledServices = Settings.Secure.getString(
+                    context.getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (TextUtils.isEmpty(enabledServices)) {
+                return false;
+            }
+            String target = context.getPackageName() + "/"
+                    + CheckForegroundAppAccessibilityService.class.getName();
+            String targetShort = context.getPackageName() + "/."
+                    + CheckForegroundAppAccessibilityService.class.getSimpleName();
+            TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
+            splitter.setString(enabledServices);
+            while (splitter.hasNext()) {
+                String component = splitter.next();
+                if (component.equalsIgnoreCase(target) || component.equalsIgnoreCase(targetShort)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    // Pro-version
+    // Returns true if the PACKAGE_USAGE_STATS access is granted to this app
     public static boolean checkUsageStatistics(Context context) {
-        // Stub
-        return true;
+        try {
+            AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            if (appOps == null) {
+                return false;
+            }
+            int mode;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        Process.myUid(), context.getPackageName());
+            } else {
+                mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                        Process.myUid(), context.getPackageName());
+            }
+            return mode == AppOpsManager.MODE_ALLOWED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Decides whether a foreground application is allowed for the user.
+     * Used by the foreground-app monitoring services to block unwanted apps.
+     */
+    public static boolean isForegroundAppAllowed(Context context, String pkg) {
+        if (pkg == null || pkg.trim().isEmpty()) {
+            // Unknown foreground app: do not block to avoid false positives
+            return true;
+        }
+        ServerConfig config = SettingsHelper.getInstance(context.getApplicationContext()).getConfig();
+        if (config == null) {
+            return true;
+        }
+        // Persistent permissive / kiosk modes do not use foreground blocking
+        if (config.isPermissive() || config.isKioskMode()) {
+            return true;
+        }
+        // The launcher itself is always allowed
+        if (pkg.equals(context.getPackageName())) {
+            return true;
+        }
+        // Essential system packages that must never be blocked
+        if (pkg.equals(Const.SYSTEM_UI_PACKAGE_NAME) || pkg.equals(Const.GSF_PACKAGE_NAME)) {
+            return true;
+        }
+        // The active input method (on-screen keyboard) must stay usable
+        if (isInputMethodPackage(context, pkg)) {
+            return true;
+        }
+        // Applications explicitly allowed by the configuration
+        List<Application> apps = config.getApplications();
+        if (apps != null) {
+            for (Application a : apps) {
+                if (a != null && pkg.equals(a.getPkg())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isInputMethodPackage(Context context, String pkg) {
+        try {
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null) {
+                return false;
+            }
+            for (InputMethodInfo imi : imm.getEnabledInputMethodList()) {
+                if (imi.getPackageName().equals(pkg)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // Ignore and treat as non-IME
+        }
+        return false;
     }
 
     // Add a transparent view on top of the status bar which prevents user interaction with the status bar
