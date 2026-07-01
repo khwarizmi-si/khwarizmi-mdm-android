@@ -32,7 +32,7 @@ import com.hmdm.launcher.server.UnsafeOkHttpClient;
 import com.hmdm.launcher.util.AppInfo;
 import com.hmdm.launcher.util.InstallUtils;
 import com.hmdm.launcher.util.Utils;
-import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 

@@ -21,7 +21,7 @@ package com.hmdm.launcher;
 
 import android.app.Application;
 
-import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 public class App extends Application {
