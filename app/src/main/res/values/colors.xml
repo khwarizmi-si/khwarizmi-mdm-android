@@ -19,15 +19,16 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#607D8B</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#87d3e1</color>
+    <!-- Al-Khwarizmi brand palette (derived from the logo) -->
+    <color name="colorPrimary">#12897A</color>
+    <color name="colorPrimaryDark">#0C6157</color>
+    <color name="colorAccent">#EE7B2E</color>
     <color name="white">#ffffff</color>
     <color name="defaultBackground">#303030</color>
 
-    <color name="wizardPrimaryDark">#ff254FAE</color>
-    <color name="wizardPrimary">#ff3367d6</color>
-    <color name="wizardAccent">#ff3367d6</color>
+    <color name="wizardPrimaryDark">#ff0C6157</color>
+    <color name="wizardPrimary">#ff12897A</color>
+    <color name="wizardAccent">#ffEE7B2E</color>
 
     <color name="statusBarLight">#aaffffff</color>
     <color name="statusBarDark">#aa000000</color>

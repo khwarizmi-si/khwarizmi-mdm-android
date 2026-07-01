@@ -32,7 +32,7 @@ repositories {
 android {
     compileSdkVersion 34
     defaultConfig {
-        applicationId "com.hmdm.launcher"
+        applicationId "com.alkhwarizmi.mdm"
         //minSdkVersion 16
         // Starting with version 6.33, we use newer version of com.fasterxml.jackson
         // which is only compatible with API 26 (Android 8+).
@@ -55,10 +55,11 @@ android {
         multiDexEnabled true
 
         // Default URL of the web panel (scheme + host!)
-        buildConfigField("String", "BASE_URL", "\"https://app.h-mdm.com\"")
+        // TODO: replace with the real Al-Khwarizmi MDM server URL before release
+        buildConfigField("String", "BASE_URL", "\"https://mdm.example.com\"")
         // URL of the secondary address of your web panel, called when the primary host is not available.
         // Could be equal to the BASE_URL parameter
-        buildConfigField("String", "SECONDARY_BASE_URL", "\"https://app.h-mdm.com\"")
+        buildConfigField("String", "SECONDARY_BASE_URL", "\"https://mdm.example.com\"")
         // Relative path of the web panel on the server. Keep it empty if installed in the root
         buildConfigField("String", "SERVER_PROJECT", "\"\"")
         // This parameter manages how the device ID should be set up at first start
@@ -78,7 +79,7 @@ android {
         // Not recommended for security purposes!
         buildConfigField("Boolean", "TRUST_ANY_CERTIFICATE", "false")
         // A shared secret to sign server config requests and MQTT (Push) messages
-        buildConfigField("String", "REQUEST_SIGNATURE", "\"changeme-C3z9vi54\"")
+        buildConfigField("String", "REQUEST_SIGNATURE", "\"20089b856964c5b5f71f1d0b\"")
         // Set this parameter to true if the server signature should be checked
         // (additional protection against Man-In-The-Middle attacks)
         buildConfigField("Boolean", "CHECK_SIGNATURE", "false")
@@ -102,7 +103,7 @@ android {
         // Adjust application selection on TV boxes
         buildConfigField("Boolean", "DISABLE_ORIENTATION_LOCK", "false")
         // API key for the authorization of privileged library requests
-        buildConfigField("String", "LIBRARY_API_KEY", "\"changeme-8gzk321W\"")
+        buildConfigField("String", "LIBRARY_API_KEY", "\"eef7c90fd1fb6038a51e963f\"")
         // Use accessibility services to control unwanted apps
         // (this option is banned by Play Protect in some countries!)
         buildConfigField("Boolean", "USE_ACCESSIBILITY", "false")

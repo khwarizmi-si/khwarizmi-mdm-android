@@ -19,9 +19,9 @@
 
 <resources>
     <string name="white_app_name" translatable="false">MDM Agent</string>
-    <string name="app_name" translatable="false">Headwind MDM</string>
+    <string name="app_name" translatable="false">Al-Khwarizmi MDM</string>
     <string name="admin_title">Administrator</string>
-    <string name="vendor" translatable="false">h-mdm.com</string>
+    <string name="vendor" translatable="false">Al-Khwarizmi</string>
     <string name="install_error">Error installing</string>
     <string name="file_create_error">Error creating file</string>
     <string name="dialog_enter_device_id_error">This ID is not registered at %s. Get the ID from \"Devices\" tab of the control panel.</string>
@@ -52,7 +52,7 @@
     <string name="main_activity_update_config">Requesting configuration file from server</string>
     <string name="main_activity_applications_update">Updating applications</string>
     <string name="dialog_overlay_settings_title">Please allow the app to draw over other windows.\n\nThis option aids the blocking of unwanted apps, and enables emergency unlocking of the kiosk mode.\n\nTap \"Continue\" to open the settings. Find the \"%s\" item, grant the permission, then tap \"Back\".</string>
-    <string name="dialog_manage_storage_title">Please allow the app to manage storage.\n\nThis option allows Headwind MDM to manage files on your device.</string>
+    <string name="dialog_manage_storage_title">Please allow the app to manage storage.\n\nThis option allows Al-Khwarizmi MDM to manage files on your device.</string>
     <string name="dialog_history_settings_title">Please allow the app to access usage data.\n\nThis option enables control of apps and settings.\n\nThis option may cause faster battery drain. To save battery, skip this option (use accessibility services or kiosk mode instead).\n\nTap \"Continue\" to open the settings. Find the \"%s\" item, grant the permission, then tap \"Back\".</string>
     <string name="dialog_history_settings_continue">Continue</string>
     <string name="dialog_history_settings_skip">Skip</string>
@@ -109,7 +109,7 @@
     <string name="dialog_enter_server_error">Please enter a valid server URL.</string>
     <string name="dialog_enter_server_ok">OK</string>
     <string name="dialog_enter_server_title">Please enter the server URL</string>
-    <string name="dialog_enter_server_hint" translatable="false">http://hmdm.example.com:8080/hmdm/</string>
+    <string name="dialog_enter_server_hint" translatable="false">https://mdm.example.com/</string>
     <string name="critical_server_failure">Quit due to server fault! Please fix the issue and restart %s, or remove it completely and reinstall.</string>
     <string name="dialog_permission_title">The app requires the permissions to run. Please grant the requested permissions.</string>
     <string name="main_activity_exit">Exit</string>
