@@ -33,6 +33,7 @@ public class DeviceInfo {
     private List<Integer> permissions = new LinkedList();
     private List<Application> applications = new LinkedList();
     private List<InstalledApp> installedApplications = new LinkedList();
+    private List<AppUsageEvent> appUsageEvents = new LinkedList();
     private List<RemoteFile> files = new LinkedList();
     private String deviceId;
     private String phone;
@@ -123,6 +124,14 @@ public class DeviceInfo {
 
     public void setInstalledApplications(List<InstalledApp> installedApplications) {
         this.installedApplications = installedApplications;
+    }
+
+    public List<AppUsageEvent> getAppUsageEvents() {
+        return appUsageEvents;
+    }
+
+    public void setAppUsageEvents(List<AppUsageEvent> appUsageEvents) {
+        this.appUsageEvents = appUsageEvents;
     }
 
     public List<RemoteFile> getFiles() {

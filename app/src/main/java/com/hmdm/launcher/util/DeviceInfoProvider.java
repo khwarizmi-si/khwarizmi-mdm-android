@@ -23,6 +23,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -41,6 +43,7 @@ import com.hmdm.launcher.Const;
 import com.hmdm.launcher.db.DatabaseHelper;
 import com.hmdm.launcher.db.RemoteFileTable;
 import com.hmdm.launcher.helper.SettingsHelper;
+import com.hmdm.launcher.json.AppUsageEvent;
 import com.hmdm.launcher.json.Application;
 import com.hmdm.launcher.json.DeviceInfo;
 import com.hmdm.launcher.json.InstalledApp;
@@ -52,7 +55,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeviceInfoProvider {
     public static DeviceInfo getDeviceInfo(Context context, boolean queryPermissions, boolean queryApps) {
@@ -135,6 +140,13 @@ public class DeviceInfoProvider {
             // so the managed-app compliance logic is unaffected. Requires the
             // QUERY_ALL_PACKAGES permission (declared in the manifest).
             collectInstalledApplications(packageManager, deviceInfo.getInstalledApplications());
+
+            // Lightweight app-usage history (which apps were brought to foreground).
+            // Only collected when the usage-access permission has been granted — an
+            // explicit, deliberate act — so this is effectively opt-in.
+            if (ProUtils.checkUsageStatistics(context)) {
+                collectAppUsageEvents(context, packageManager, deviceInfo.getAppUsageEvents());
+            }
         }
 
         deviceInfo.setDeviceId( SettingsHelper.getInstance( context ).getDeviceId() );
@@ -235,6 +247,66 @@ public class DeviceInfoProvider {
             }
         } catch (Exception e) {
             Log.w(Const.LOG_TAG, "Failed to collect installed app inventory: " + e.getMessage());
+        }
+    }
+
+    // Look back this far for foreground events, and cap how many are reported per sync.
+    private static final long APP_USAGE_WINDOW_MS = 24 * 60 * 60 * 1000L;
+    private static final int APP_USAGE_MAX_EVENTS = 200;
+
+    /**
+     * Collects the lightweight app-usage history (MOVE_TO_FOREGROUND events within a
+     * bounded time window, capped in count) into the given list, newest last. Failures
+     * are logged and swallowed so a usage problem never breaks the device-info sync.
+     */
+    private static void collectAppUsageEvents(Context context, PackageManager packageManager,
+                                              List<AppUsageEvent> appUsageEvents) {
+        try {
+            UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            if (usm == null) {
+                return;
+            }
+            long end = System.currentTimeMillis();
+            long begin = end - APP_USAGE_WINDOW_MS;
+            UsageEvents events = usm.queryEvents(begin, end);
+            if (events == null) {
+                return;
+            }
+            // Resolve labels once per package to avoid repeated PackageManager lookups.
+            Map<String, String> labelCache = new HashMap<>();
+            UsageEvents.Event event = new UsageEvents.Event();
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event);
+                if (event.getEventType() != UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    continue;
+                }
+                String pkg = event.getPackageName();
+                if (pkg == null) {
+                    continue;
+                }
+                String name = labelCache.get(pkg);
+                if (name == null) {
+                    name = resolveAppLabel(packageManager, pkg);
+                    labelCache.put(pkg, name);
+                }
+                appUsageEvents.add(new AppUsageEvent(pkg, name, event.getTimeStamp()));
+            }
+            // Keep only the most recent events if the window produced too many.
+            if (appUsageEvents.size() > APP_USAGE_MAX_EVENTS) {
+                appUsageEvents.subList(0, appUsageEvents.size() - APP_USAGE_MAX_EVENTS).clear();
+            }
+        } catch (Exception e) {
+            Log.w(Const.LOG_TAG, "Failed to collect app usage events: " + e.getMessage());
+        }
+    }
+
+    private static String resolveAppLabel(PackageManager packageManager, String pkg) {
+        try {
+            ApplicationInfo ai = packageManager.getApplicationInfo(pkg, 0);
+            CharSequence label = packageManager.getApplicationLabel(ai);
+            return label != null ? label.toString() : pkg;
+        } catch (Exception e) {
+            return pkg;
         }
     }
 
