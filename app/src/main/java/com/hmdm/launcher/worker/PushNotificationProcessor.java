@@ -111,6 +111,14 @@ public class PushNotificationProcessor {
             // Reboot a device
             executor.execute(() -> reboot(context));
             return;
+        } else if (message.getMessageType().equals(PushMessage.TYPE_LOCK)) {
+            // Lock the device screen
+            executor.execute(() -> lockDevice(context));
+            return;
+        } else if (message.getMessageType().equals(PushMessage.TYPE_WIPE)) {
+            // Factory reset the device
+            executor.execute(() -> wipeDevice(context));
+            return;
         } else if (message.getMessageType().equals(PushMessage.TYPE_EXIT_KIOSK)) {
             // Temporarily exit kiosk mode
             LocalBroadcastManager.getInstance(context).
@@ -373,6 +381,28 @@ public class PushNotificationProcessor {
             }
         } else {
             RemoteLogger.log(context, Const.LOG_WARN, "Reboot failed: no permissions");
+        }
+    }
+
+    private static void lockDevice(Context context) {
+        RemoteLogger.log(context, Const.LOG_WARN, "Locking the device by a Push message");
+        if (Utils.checkAdminMode(context)) {
+            if (!Utils.lockScreen(context)) {
+                RemoteLogger.log(context, Const.LOG_WARN, "Lock failed");
+            }
+        } else {
+            RemoteLogger.log(context, Const.LOG_WARN, "Lock failed: no permissions");
+        }
+    }
+
+    private static void wipeDevice(Context context) {
+        RemoteLogger.log(context, Const.LOG_WARN, "Factory resetting the device by a Push message");
+        if (Utils.checkAdminMode(context)) {
+            if (!Utils.factoryReset(context)) {
+                RemoteLogger.log(context, Const.LOG_WARN, "Factory reset failed");
+            }
+        } else {
+            RemoteLogger.log(context, Const.LOG_WARN, "Factory reset failed: no permissions");
         }
     }
 

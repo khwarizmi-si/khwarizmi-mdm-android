@@ -393,6 +393,17 @@ public class Utils {
         }
     }
 
+    // Immediately locks the device screen (requires device-owner / admin).
+    public static boolean lockScreen(Context context) {
+        try {
+            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            dpm.lockNow();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static boolean reboot(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return false;
