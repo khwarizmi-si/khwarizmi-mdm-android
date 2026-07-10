@@ -407,6 +407,16 @@ public class Utils {
         }
     }
 
+    public static boolean lockDevice(Context context) {
+        try {
+            DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            dpm.lockNow();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static String getDataToken(Context context) {
         String token = context.getSharedPreferences(Const.PREFERENCES, Context.MODE_PRIVATE).getString(Const.PREFERENCES_DATA_TOKEN, null);
         if (token == null) {
