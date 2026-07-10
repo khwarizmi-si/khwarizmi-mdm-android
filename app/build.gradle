@@ -29,6 +29,28 @@ repositories {
     mavenCentral()
 }
 
+def stringConfig = { String propertyName, String envName, String fallback ->
+    def value = project.findProperty(propertyName)
+    if (value == null || value.toString().trim().isEmpty()) {
+        value = System.getenv(envName)
+    }
+    if (value == null) {
+        value = fallback
+    }
+    return "\"" + value.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+}
+
+def booleanConfig = { String propertyName, String envName, boolean fallback ->
+    def value = project.findProperty(propertyName)
+    if (value == null || value.toString().trim().isEmpty()) {
+        value = System.getenv(envName)
+    }
+    if (value == null || value.toString().trim().isEmpty()) {
+        return fallback.toString()
+    }
+    return (value.toString().equals("1") || value.toString().equalsIgnoreCase("true")).toString()
+}
+
 android {
     compileSdkVersion 35
     defaultConfig {
@@ -82,10 +104,10 @@ android {
         // Not recommended for security purposes!
         buildConfigField("Boolean", "TRUST_ANY_CERTIFICATE", "false")
         // A shared secret to sign server config requests and MQTT (Push) messages
-        buildConfigField("String", "REQUEST_SIGNATURE", "\"20089b856964c5b5f71f1d0b\"")
+        buildConfigField("String", "REQUEST_SIGNATURE", stringConfig("hmdmRequestSignature", "HMDM_REQUEST_SIGNATURE", ""))
         // Set this parameter to true if the server signature should be checked
         // (additional protection against Man-In-The-Middle attacks)
-        buildConfigField("Boolean", "CHECK_SIGNATURE", "false")
+        buildConfigField("Boolean", "CHECK_SIGNATURE", booleanConfig("hmdmCheckSignature", "HMDM_CHECK_SIGNATURE", true))
         // ANR watchdog flag (for testing purposes only as this watchdog may drain the resources!)
         buildConfigField("Boolean", "ANR_WATCHDOG", "false")
         // If set to true, the server URL will be requested in UI in non-MDM mode even if it is hardcoded in build.gradle
@@ -106,7 +128,7 @@ android {
         // Adjust application selection on TV boxes
         buildConfigField("Boolean", "DISABLE_ORIENTATION_LOCK", "false")
         // API key for the authorization of privileged library requests
-        buildConfigField("String", "LIBRARY_API_KEY", "\"eef7c90fd1fb6038a51e963f\"")
+        buildConfigField("String", "LIBRARY_API_KEY", stringConfig("hmdmLibraryApiKey", "HMDM_LIBRARY_API_KEY", ""))
         // Use accessibility services to control unwanted apps
         // (this option is banned by Play Protect in some countries!)
         buildConfigField("Boolean", "USE_ACCESSIBILITY", "false")

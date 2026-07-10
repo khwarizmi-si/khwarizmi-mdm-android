@@ -55,6 +55,10 @@ public class PluginApiService extends Service {
     public static final String KEY_IS_KIOSK = "IS_KIOSK";
     public static final String KEY_ERROR = "ERROR";
 
+    private static boolean isPrivilegedApiKey(String apiKey) {
+        return apiKey != null && !BuildConfig.LIBRARY_API_KEY.isEmpty() && apiKey.equals(BuildConfig.LIBRARY_API_KEY);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -103,7 +107,7 @@ public class PluginApiService extends Service {
                     bundle.putString(KEY_CUSTOM_3, settingsHelper.getConfig().getCustom3());
                 }
                 if (apiKey != null) {
-                    if (apiKey.equals(BuildConfig.LIBRARY_API_KEY)) {
+                    if (isPrivilegedApiKey(apiKey)) {
                         // IMEI and serial are set only to authorized requests
                         bundle.putString(KEY_IMEI, DeviceInfoProvider.getImei(PluginApiService.this));
                         bundle.putString(KEY_SERIAL, DeviceInfoProvider.getSerialNumber());
@@ -188,7 +192,7 @@ public class PluginApiService extends Service {
 
         @Override
         public boolean sendPush(String apiKey, String type, String payload) {
-            if (!apiKey.equals(BuildConfig.LIBRARY_API_KEY)) {
+            if (!isPrivilegedApiKey(apiKey)) {
                 return false;
             }
             PushMessage message = new PushMessage();
