@@ -43,6 +43,7 @@ import com.hmdm.launcher.json.PushMessage;
 import com.hmdm.launcher.json.ServerConfig;
 import com.hmdm.launcher.util.InstallUtils;
 import com.hmdm.launcher.util.LegacyUtils;
+import com.hmdm.launcher.util.PushSecurity;
 import com.hmdm.launcher.util.RemoteLogger;
 import com.hmdm.launcher.util.SystemUtils;
 import com.hmdm.launcher.util.Utils;
@@ -281,7 +282,7 @@ public class PushNotificationProcessor {
 
         try {
             String path = payload.getString("path");
-            File file = new File(Environment.getExternalStorageDirectory(), path);
+            File file = PushSecurity.resolveChildPath(Environment.getExternalStorageDirectory(), path);
             file.delete();
             RemoteLogger.log(context, Const.LOG_INFO, "Deleted file: " + path);
         } catch (Exception e) {
@@ -293,8 +294,10 @@ public class PushNotificationProcessor {
     private static void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
             File[] childFiles = fileOrDirectory.listFiles();
-            for (File child : childFiles) {
-                deleteRecursive(child);
+            if (childFiles != null) {
+                for (File child : childFiles) {
+                    deleteRecursive(child);
+                }
             }
         }
         fileOrDirectory.delete();
@@ -308,7 +311,7 @@ public class PushNotificationProcessor {
 
         try {
             String path = payload.getString("path");
-            File file = new File(Environment.getExternalStorageDirectory(), path);
+            File file = PushSecurity.resolveChildPath(Environment.getExternalStorageDirectory(), path);
             deleteRecursive(file);
             RemoteLogger.log(context, Const.LOG_INFO, "Deleted directory: " + path);
         } catch (Exception e) {
@@ -325,20 +328,22 @@ public class PushNotificationProcessor {
 
         try {
             String path = payload.getString("path");
-            File file = new File(Environment.getExternalStorageDirectory(), path);
+            File file = PushSecurity.resolveChildPath(Environment.getExternalStorageDirectory(), path);
             if (!file.isDirectory()) {
                 RemoteLogger.log(context, Const.LOG_WARN, "Directory purge failed: not a directory: " + path);
                 return;
             }
             String recursive = payload.optString("recursive");
             File[] childFiles = file.listFiles();
-            for (File child : childFiles) {
-                if (recursive == null || !recursive.equals("1")) {
-                    if (!child.isDirectory()) {
-                        child.delete();
+            if (childFiles != null) {
+                for (File child : childFiles) {
+                    if (recursive == null || !recursive.equals("1")) {
+                        if (!child.isDirectory()) {
+                            child.delete();
+                        }
+                    } else {
+                        deleteRecursive(child);
                     }
-                } else {
-                    deleteRecursive(child);
                 }
             }
             RemoteLogger.log(context, Const.LOG_INFO, "Purged directory: " + path);
@@ -355,6 +360,10 @@ public class PushNotificationProcessor {
         }
 
         try {
+            if (!BuildConfig.ENABLE_REMOTE_SHELL) {
+                RemoteLogger.log(context, Const.LOG_WARN, "Command rejected: remote shell is disabled");
+                return;
+            }
             String command = payload.getString("command");
             Log.d(Const.LOG_TAG, "Executing a command: " + command);
             String result = SystemUtils.executeShellCommand(command, true);

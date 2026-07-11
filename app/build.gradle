@@ -80,11 +80,10 @@ android {
         multiDexEnabled true
 
         // Default URL of the web panel (scheme + host!)
-        // TODO: replace with the real Al-Khwarizmi MDM server URL before release
-        buildConfigField("String", "BASE_URL", "\"https://mdm.example.com\"")
+        buildConfigField("String", "BASE_URL", stringConfig("hmdmBaseUrl", "HMDM_BASE_URL", "https://khwarizmi.co.id/"))
         // URL of the secondary address of your web panel, called when the primary host is not available.
         // Could be equal to the BASE_URL parameter
-        buildConfigField("String", "SECONDARY_BASE_URL", "\"https://mdm.example.com\"")
+        buildConfigField("String", "SECONDARY_BASE_URL", stringConfig("hmdmSecondaryBaseUrl", "HMDM_SECONDARY_BASE_URL", "https://khwarizmi.co.id/"))
         // Relative path of the web panel on the server. Keep it empty if installed in the root
         buildConfigField("String", "SERVER_PROJECT", "\"\"")
         // This parameter manages how the device ID should be set up at first start
@@ -132,6 +131,8 @@ android {
         // Use accessibility services to control unwanted apps
         // (this option is banned by Play Protect in some countries!)
         buildConfigField("Boolean", "USE_ACCESSIBILITY", "false")
+        // Disabled by default because it executes arbitrary shell commands from remote push payloads.
+        buildConfigField("Boolean", "ENABLE_REMOTE_SHELL", booleanConfig("hmdmEnableRemoteShell", "HMDM_ENABLE_REMOTE_SHELL", false))
     }
     buildTypes {
         release {

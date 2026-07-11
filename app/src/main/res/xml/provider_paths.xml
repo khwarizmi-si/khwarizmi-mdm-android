@@ -18,4 +18,9 @@
   ~ limitations under the License.
   -->
 
-<paths><external-path name="external_files" path="."/></paths>
+<paths>
+    <cache-path name="cache" path="."/>
+    <external-cache-path name="external_cache" path="."/>
+    <external-files-path name="external_files" path="."/>
+    <external-path name="external_downloads" path="Download/"/>
+</paths>

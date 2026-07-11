@@ -229,7 +229,13 @@ public class PushNotificationMqttWrapper {
                     try {
                         JSONObject obj = new JSONObject(new String(message.getPayload()));
                         String messageType = obj.getString("messageType");
-                        PushMessageJson msg = new PushMessageJson(messageType, obj.optJSONObject("payload"));
+                        JSONObject payload = obj.optJSONObject("payload");
+                        String signature = obj.optString(PushSecurity.SIGNATURE_FIELD, null);
+                        if (!PushSecurity.isMqttMessageAllowed(messageType, payload, signature, BuildConfig.REQUEST_SIGNATURE)) {
+                            RemoteLogger.log(context, Const.LOG_WARN, "Rejected unsigned MQTT push message: " + messageType);
+                            return;
+                        }
+                        PushMessageJson msg = new PushMessageJson(messageType, payload);
                         PushNotificationProcessor.process(msg, context);
                     } catch (Exception e) {
                         e.printStackTrace();
