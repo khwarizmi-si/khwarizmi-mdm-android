@@ -105,7 +105,10 @@ public interface ServerService {
 
     @PUT("{project}/rest/public/sync/appUsage/{number}")
     @Headers("Content-Type: application/json")
-    Call<ResponseBody> sendAppUsage(@Path("project") String project, @Path("number") String number, @Body List<AppUsageEvent> appUsageEvents);
+    Call<ResponseBody> sendAppUsage(@Path("project") String project,
+                                    @Path("number") String number,
+                                    @Header(REQUEST_SIGNATURE_HEADER) String signature,
+                                    @Body List<AppUsageEvent> appUsageEvents);
 
     @GET( "{project}/rest/plugins/deviceinfo/deviceinfo-plugin-settings/device/{number}" )
     Call<DetailedInfoConfigResponse> getDetailedInfoConfig(@Path("project") String project, @Path("number") String number);

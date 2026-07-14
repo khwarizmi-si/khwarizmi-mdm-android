@@ -20,9 +20,11 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.hmdm.launcher.Const;
+import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.db.AppUsageTable;
 import com.hmdm.launcher.db.DatabaseHelper;
 import com.hmdm.launcher.helper.SettingsHelper;
+import com.hmdm.launcher.helper.CryptoHelper;
 import com.hmdm.launcher.json.AppUsageEvent;
 import com.hmdm.launcher.server.ServerService;
 import com.hmdm.launcher.server.ServerServiceKeeper;
@@ -107,17 +109,19 @@ public class AppUsageWorker extends Worker {
     private boolean upload(List<AppUsageEvent> events) {
         ServerService serverService = ServerServiceKeeper.getServerServiceInstance(context);
         ServerService secondaryServerService = ServerServiceKeeper.getSecondaryServerServiceInstance(context);
+        String deviceId = settingsHelper.getDeviceId();
+        String signature = CryptoHelper.getSHA1String(BuildConfig.REQUEST_SIGNATURE + deviceId);
         Response<ResponseBody> response = null;
 
         try {
-            response = serverService.sendAppUsage(settingsHelper.getServerProject(), settingsHelper.getDeviceId(), events).execute();
+            response = serverService.sendAppUsage(settingsHelper.getServerProject(), deviceId, signature, events).execute();
         } catch (Exception e) {
             Log.w(Const.LOG_TAG, "Failed to upload app usage to primary server: " + e.getMessage());
         }
 
         try {
             if (response == null || !response.isSuccessful()) {
-                response = secondaryServerService.sendAppUsage(settingsHelper.getServerProject(), settingsHelper.getDeviceId(), events).execute();
+                response = secondaryServerService.sendAppUsage(settingsHelper.getServerProject(), deviceId, signature, events).execute();
             }
             return response != null && response.isSuccessful();
         } catch (Exception e) {
