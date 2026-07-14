@@ -3,6 +3,7 @@ package com.hmdm.launcher.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.projection.MediaProjectionConfig;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,7 +28,10 @@ public class RemoteScreenPermissionActivity extends Activity {
         }
         MediaProjectionManager manager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+        Intent captureIntent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                ? manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+                : manager.createScreenCaptureIntent();
+        startActivityForResult(captureIntent, REQUEST_MEDIA_PROJECTION);
     }
 
     @Override
@@ -46,6 +50,7 @@ public class RemoteScreenPermissionActivity extends Activity {
             }
         } else {
             RemoteLogger.log(this, Const.LOG_WARN, "Remote screen permission denied");
+            RemoteScreenCaptureService.reportStatus(this, sessionId, "failed", "permission_denied");
         }
         finish();
     }

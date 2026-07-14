@@ -32,6 +32,7 @@ import com.hmdm.launcher.R;
 import com.hmdm.launcher.helper.CryptoHelper;
 import com.hmdm.launcher.helper.SettingsHelper;
 import com.hmdm.launcher.json.RemoteScreenFrame;
+import com.hmdm.launcher.json.RemoteScreenStatus;
 import com.hmdm.launcher.pro.ProUtils;
 import com.hmdm.launcher.server.ServerService;
 import com.hmdm.launcher.server.ServerServiceKeeper;
@@ -74,6 +75,7 @@ public class RemoteScreenCaptureService extends Service {
         int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, 0);
         if (sessionId == null || resultData == null || resultCode == 0) {
             RemoteLogger.log(this, Const.LOG_WARN, "Remote screen capture failed: missing permission data");
+            reportStatus(this, sessionId, "failed", "missing_permission_data");
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -90,6 +92,7 @@ public class RemoteScreenCaptureService extends Service {
         projection = manager.getMediaProjection(resultCode, resultData);
         if (projection == null) {
             RemoteLogger.log(this, Const.LOG_WARN, "Remote screen capture failed: projection unavailable");
+            reportStatus(this, sessionId, "failed", "projection_unavailable");
             stopSelf();
             return;
         }
@@ -102,15 +105,28 @@ public class RemoteScreenCaptureService extends Service {
         captureThread.start();
         Handler handler = new Handler(captureThread.getLooper());
         projection.registerCallback(new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                reportStatus(RemoteScreenCaptureService.this, sessionId, "ended", "projection_stopped");
+                releaseCaptureResources(false);
+                stopSelf();
+            }
         }, handler);
-        imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels,
-                PixelFormat.RGBA_8888, 2);
-        imageReader.setOnImageAvailableListener(this::onImageAvailable, handler);
-        virtualDisplay = projection.createVirtualDisplay("RemoteScreen",
-                metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                imageReader.getSurface(), null, handler);
-        RemoteLogger.log(this, Const.LOG_INFO, "Remote screen capture started: " + sessionId);
+        try {
+            imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels,
+                    PixelFormat.RGBA_8888, 2);
+            imageReader.setOnImageAvailableListener(this::onImageAvailable, handler);
+            virtualDisplay = projection.createVirtualDisplay("RemoteScreen",
+                    metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    imageReader.getSurface(), null, handler);
+            RemoteLogger.log(this, Const.LOG_INFO, "Remote screen capture started: " + sessionId);
+        } catch (Exception e) {
+            RemoteLogger.log(this, Const.LOG_WARN, "Remote screen capture failed: " + e.getMessage());
+            reportStatus(this, sessionId, "failed", "capture_start_failed");
+            stopCapture();
+            stopSelf();
+        }
     }
 
     private void onImageAvailable(ImageReader reader) {
@@ -166,10 +182,44 @@ public class RemoteScreenCaptureService extends Service {
         if (!response.isSuccessful()) {
             RemoteLogger.log(this, Const.LOG_WARN,
                     "Remote screen frame rejected: HTTP " + response.code());
+            if (response.code() == 403 || response.code() == 404) {
+                reportStatus(this, sessionId, "failed", "frame_rejected_" + response.code());
+            }
         }
     }
 
+    public static void reportStatus(Context context, String sessionId, String status, String reason) {
+        if (sessionId == null || sessionId.length() == 0) {
+            return;
+        }
+        ExecutorService statusExecutor = Executors.newSingleThreadExecutor();
+        statusExecutor.execute(() -> {
+            try {
+                SettingsHelper settings = SettingsHelper.getInstance(context);
+                String deviceId = settings.getDeviceId();
+                String signature = CryptoHelper.getSHA1String(BuildConfig.REQUEST_SIGNATURE + deviceId);
+                ServerService service = ServerServiceKeeper.getServerServiceInstance(context);
+                retrofit2.Response<?> response = service.updateRemoteScreenStatus(
+                        settings.getServerProject(), deviceId, sessionId, signature,
+                        new RemoteScreenStatus(status, reason)).execute();
+                if (!response.isSuccessful()) {
+                    RemoteLogger.log(context, Const.LOG_WARN,
+                            "Remote screen status rejected: HTTP " + response.code());
+                }
+            } catch (Exception e) {
+                RemoteLogger.log(context, Const.LOG_WARN,
+                        "Remote screen status update failed: " + e.getMessage());
+            } finally {
+                statusExecutor.shutdown();
+            }
+        });
+    }
+
     private void stopCapture() {
+        releaseCaptureResources(true);
+    }
+
+    private void releaseCaptureResources(boolean stopProjection) {
         if (virtualDisplay != null) {
             virtualDisplay.release();
             virtualDisplay = null;
@@ -179,7 +229,9 @@ public class RemoteScreenCaptureService extends Service {
             imageReader = null;
         }
         if (projection != null) {
-            projection.stop();
+            if (stopProjection) {
+                projection.stop();
+            }
             projection = null;
         }
         if (captureThread != null) {

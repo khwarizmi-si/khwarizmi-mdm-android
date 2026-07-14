@@ -30,6 +30,7 @@ import com.hmdm.launcher.json.PushResponse;
 import com.hmdm.launcher.json.RemoteScreenFrame;
 import com.hmdm.launcher.json.RemoteLogConfigResponse;
 import com.hmdm.launcher.json.RemoteLogItem;
+import com.hmdm.launcher.json.RemoteScreenStatus;
 import com.hmdm.launcher.json.ServerConfigResponse;
 
 import java.util.List;
@@ -133,4 +134,12 @@ public interface ServerService {
                                                @Path("sessionId") String sessionId,
                                                @Header(REQUEST_SIGNATURE_HEADER) String signature,
                                                @Body RemoteScreenFrame frame);
+
+    @POST("{project}/rest/public/remote-screen/{number}/sessions/{sessionId}/status")
+    @Headers("Content-Type: application/json")
+    Call<ResponseBody> updateRemoteScreenStatus(@Path("project") String project,
+                                                @Path("number") String number,
+                                                @Path("sessionId") String sessionId,
+                                                @Header(REQUEST_SIGNATURE_HEADER) String signature,
+                                                @Body RemoteScreenStatus status);
 }
