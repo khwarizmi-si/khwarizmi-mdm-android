@@ -49,6 +49,7 @@ public class PushMessage {
     public static final String TYPE_CLEAR_APP_DATA = "clearAppData";
     public static final String TYPE_REMOTE_SCREEN_START = "remoteScreenStart";
     public static final String TYPE_REMOTE_SCREEN_STOP = "remoteScreenStop";
+    public static final String TYPE_REMOTE_SCREEN_CONTROL = "remoteScreenControl";
 
     public String getMessageType() {
         return messageType;

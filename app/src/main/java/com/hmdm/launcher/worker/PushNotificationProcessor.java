@@ -27,7 +27,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -153,6 +155,9 @@ public class PushNotificationProcessor {
         } else if (message.getMessageType().equals(PushMessage.TYPE_REMOTE_SCREEN_STOP)) {
             executor.execute(() -> stopRemoteScreen(context, message.getPayloadJSON()));
             return;
+        } else if (message.getMessageType().equals(PushMessage.TYPE_REMOTE_SCREEN_CONTROL)) {
+            executor.execute(() -> controlRemoteScreen(context, message.getPayloadJSON()));
+            return;
         }
 
         // Send broadcast to all plugins
@@ -190,6 +195,39 @@ public class PushNotificationProcessor {
         context.stopService(intent);
         RemoteLogger.log(context, Const.LOG_INFO,
                 "Remote screen session stopped" + (sessionId.isEmpty() ? "" : ": " + sessionId));
+    }
+
+    private static void controlRemoteScreen(Context context, JSONObject payload) {
+        if (payload == null || !"tap".equals(payload.optString("type"))) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Remote screen control rejected: invalid payload");
+            return;
+        }
+        if (!BuildConfig.ENABLE_REMOTE_SHELL) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Remote screen control rejected: remote shell is disabled");
+            return;
+        }
+
+        double normalizedX = payload.optDouble("x", -1);
+        double normalizedY = payload.optDouble("y", -1);
+        if (Double.isNaN(normalizedX) || Double.isNaN(normalizedY) ||
+                normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Remote screen control rejected: coordinates out of range");
+            return;
+        }
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (windowManager == null) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Remote screen control failed: display unavailable");
+            return;
+        }
+        windowManager.getDefaultDisplay().getRealMetrics(metrics);
+        int x = (int) Math.round(normalizedX * Math.max(0, metrics.widthPixels - 1));
+        int y = (int) Math.round(normalizedY * Math.max(0, metrics.heightPixels - 1));
+
+        String result = SystemUtils.executeShellCommand("input tap " + x + " " + y, true);
+        String suffix = result == null || result.trim().isEmpty() ? "" : ": " + result.trim();
+        RemoteLogger.log(context, Const.LOG_INFO, "Remote screen tap sent at " + x + "," + y + suffix);
     }
 
     private static void runApplication(Context context, JSONObject payload) {
