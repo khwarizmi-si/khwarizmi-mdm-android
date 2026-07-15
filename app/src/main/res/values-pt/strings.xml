@@ -94,7 +94,7 @@
     <string name="message_turn_on_mobile_data">Rede de Dados do Celular está desativada! Por favor abra a barra de status e ATIVE a rede de dados.</string>
     <string name="message_turn_off_mobile_data">Rede de Dados do Celular está ativada. Por favor abra a barra de status e DESATIVE a rede de dados.</string>
     <string name="message_set_password">Sua senha não está com uma senha de boa qualidade. A tela de configurações vai ser aberta. Por favor altere sua senha e toque em Voltar.</string>
-    <string name="switch_off_blockings">Desligando Restrições...</string>
+    <string name="switch_off_blockings">Desligando Restrições…</string>
     <string name="kiosk_mode_requires_overlays">Modo Kiosk desativado: Sem permissões para sobrepor outros aplicativos. Por favor habilite %s para sobrepor os aplicativos.</string>
     <string name="enter_admin_password">Digite a senha do Administrador</string>
     <string name="wrong_password">Senha inválida</string>
@@ -120,7 +120,7 @@
     <string name="background_location">%s requer permissão de localização em segundo plano. Clique em \'Continuar\' para abrir as permissões, clique em \'Local\' e permita determinar o local sempre.</string>
     <string name="location_disable">Desativar localização</string>
     <string name="background_location_continue">Continuar</string>
-    <string name="initializing_mdm">Inicializando o aplicativo de gerenciamento de dispositivo móvel ...</string>
+    <string name="initializing_mdm">Inicializando o aplicativo de gerenciamento de dispositivo móvel …</string>
     <string name="dialog_server_error_title">O servidor MDM %s retornou uma resposta inválida. Entre em contato com o seu administrador.</string>
     <string name="mdm_choice_message">Este dispositivo será totalmente gerenciado por sua organização. Seus dados não serão privados e podem ser apagados ou revisados por seu administrador de TI a qualquer momento.</string>
     <string name="work_profile_message">Este dispositivo receberá um perfil de trabalho gerenciado pertencente à sua organização. O perfil de trabalho é separado do seu perfil privado e você pode alternar entre os perfis a qualquer momento.</string>

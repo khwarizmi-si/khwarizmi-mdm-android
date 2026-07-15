@@ -94,7 +94,7 @@
     <string name="message_turn_on_mobile_data">Mobilní data jsou vypnuta. Zapněte je prosím ve stavové liště</string>
     <string name="message_turn_off_mobile_data">Mobilní data jsou zapnuta. Vypněte je prosím ve stavové liště.</string>
     <string name="message_set_password">Vaše heslo nesplňuje požadavky. Nyní se otevře nastavení. Prosím změnte si heslo.</string>
-    <string name="switch_off_blockings">Vypínám omezení...</string>
+    <string name="switch_off_blockings">Vypínám omezení…</string>
     <string name="kiosk_mode_requires_overlays">Režim kiosk vypnut: chybí oprávnění pro vykreslování přes aplikace. Prosím povolte oprávnění pro %s.</string>
     <string name="enter_admin_password">Zadejte administrátorské heslo</string>
     <string name="wrong_password">Špatné heslo</string>
@@ -120,7 +120,7 @@
     <string name="background_location">%s vyžaduje oprávnění sledování polohy na pozadí. Vyberte \'Pokračovat\' pro otevření nastavení. Vyberte \'Poloha\' a možnost sledování polohy kdykoliv.</string>
     <string name="location_disable">Zakázat polohu</string>
     <string name="background_location_continue">Pokračovat</string>
-    <string name="initializing_mdm">Připravuji aplikaci pro správu zařízení...</string>
+    <string name="initializing_mdm">Připravuji aplikaci pro správu zařízení…</string>
     <string name="dialog_server_error_title">MDM server %s vrátil neplatnou odpověď. Prosím kontaktujte administrátora.</string>
     <string name="mdm_choice_message">Toto zažízení bude plně řízeno vaší organizací. Vaše data nejsou soukromá a mohou být kdykoliv smazána, nebo zobrazena vaším administrátotem.</string>
     <string name="work_profile_message">Na tomto zařízení se vytvoří pracovní profil, který patří vaší organizaci. Pracovní profil je oddělen od vašeho soukromého a lze mezi nimi kdykoliv přepínat.</string>

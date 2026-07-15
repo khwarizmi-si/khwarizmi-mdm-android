@@ -2251,7 +2251,7 @@ public class MainActivity
                 null,
                 false );
         int errorTextResource = this.downloadingFile ? R.string.main_file_downloading_error : R.string.main_app_downloading_error;
-        dialogFileDownloadingFailedBinding.title.setText( getString(errorTextResource) + " " + fileName );
+        dialogFileDownloadingFailedBinding.title.setText( getString(R.string.download_error_with_name, getString(errorTextResource), fileName) );
         fileNotDownloadedDialog.setCancelable( false );
         fileNotDownloadedDialog.requestWindowFeature( Window.FEATURE_NO_TITLE );
 

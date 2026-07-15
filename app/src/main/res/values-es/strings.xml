@@ -94,7 +94,7 @@
     <string name="message_turn_on_mobile_data">Los datos moviles están desactivados! Por favor, abra la barra de estado y habilite los mismos.</string>
     <string name="message_turn_off_mobile_data">Mobile data are enabled. Por favor, abra la barra de estado y deshabilite los mismos.</string>
     <string name="message_set_password">Tu contraseña no es suficientemente segura. La pantalla de configuracion se abrira ahora. Por favor, cambie la contraseña y presione Atras.</string>
-    <string name="switch_off_blockings">Deshabilitando restricciones...</string>
+    <string name="switch_off_blockings">Deshabilitando restricciones…</string>
     <string name="kiosk_mode_requires_overlays">Modo Kiosk deshabilitado: no se encontro permiso para sobreponerse a otras ventanas. Por favor, permita a %s sobreponerse a ventanas.</string>
     <string name="enter_admin_password">Ingrese la contraseña de Administrador</string>
     <string name="wrong_password">Contraseña invalida.</string>
@@ -120,7 +120,7 @@
     <string name="background_location">%s requiere el permiso de ubicación en segundo plano. Haga clic en \'Continuar\' para abrir los permisos, haga clic en \'Ubicación\' y permita determinar la ubicación siempre.</string>
     <string name="location_disable">Deshabilitar ubicación</string>
     <string name="background_location_continue">Continuar</string>
-    <string name="initializing_mdm">Inicialización de la aplicación de gestión de dispositivos móviles ...</string>
+    <string name="initializing_mdm">Inicialización de la aplicación de gestión de dispositivos móviles …</string>
     <string name="dialog_server_error_title">El servidor MDM %s devolvió una respuesta no válida. Comuníquese con su administrador.</string>
     <string name="mdm_choice_message">Este dispositivo será completamente administrado por su organización. Sus datos no serán privados y su administrador de TI puede borrarlos o revisarlos en cualquier momento.</string>
     <string name="work_profile_message">Este dispositivo obtendrá un perfil de trabajo administrado que pertenece a su organización. El perfil de trabajo está separado de su perfil privado y puede cambiar de perfil en cualquier momento.</string>

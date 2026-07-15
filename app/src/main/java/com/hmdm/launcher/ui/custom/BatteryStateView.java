@@ -101,7 +101,7 @@ public class BatteryStateView extends LinearLayout {
 
     private void updateControls() {
         percentView.setTextColor(context.getResources().getColor(darkBackground ? R.color.statusBarLight : R.color.statusBarDark));
-        percentView.setText(chargePercent + "%");
+        percentView.setText(context.getString(R.string.battery_percent, chargePercent));
         int imageIndex = chargePercent / 18;
         batteryView.setImageResource(darkBackground ? lightImages[imageIndex] : darkImages[imageIndex]);
         pluggedView.setImageResource(darkBackground ? R.drawable.ic_charger_white : R.drawable.ic_charger_black);

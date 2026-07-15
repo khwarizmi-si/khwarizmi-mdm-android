@@ -93,7 +93,7 @@
     <string name="message_turn_on_mobile_data">I dati mobili sono disabilitati! Apri la barra di stato e attiva i dati mobili.</string>
     <string name="message_turn_off_mobile_data">I dati mobili sono abilitati. Apri la barra di stato e DISATTIVARE i dati mobili.</string>
     <string name="message_set_password">La qualità della tua password non è sufficientemente buona. Si aprirà la schermata delle impostazioni. Cambia la password e fai clic su Indietro.</string>
-    <string name="switch_off_blockings">Disattivazione delle restrizioni...</string>
+    <string name="switch_off_blockings">Disattivazione delle restrizioni…</string>
     <string name="kiosk_mode_requires_overlays">Modalità chiosco disabilitata: nessuna autorizzazione a disegnare su altre finestre. Consenti a %s di disegnare su altre finestre.</string>
     <string name="enter_admin_password">Inserisci la password amministratore</string>
     <string name="wrong_password">Password errata</string>
@@ -126,7 +126,7 @@
     <string name="background_location">%s richiede l\'autorizzazione per la posizione in background. Fai clic su \'Continua\' per aprire le autorizzazioni, fai clic su \'Posizione\' e consenti di determinare sempre la posizione.</string>
     <string name="location_disable">Disabilita posizione</string>
     <string name="background_location_continue">Continua</string>
-    <string name="initializing_mdm">Inizializzazione dell\'applicazione di gestione dei dispositivi mobili...</string>
+    <string name="initializing_mdm">Inizializzazione dell\'applicazione di gestione dei dispositivi mobili…</string>
     <string name="dialog_server_error_title">Il server MDM %s ha restituito una risposta non valida. Contatta l\'amministratore.</string>
     <string name="mdm_choice_message">Questo dispositivo sarà completamente gestito dalla tua organizzazione. I tuoi dati non saranno privati e potranno essere cancellati o esaminati dal tuo amministratore IT in qualsiasi momento.</string>
     <string name="work_profile_message">Questo dispositivo otterrà un profilo di lavoro gestito appartenente alla tua organizzazione. Il profilo di lavoro è separato dal tuo profilo privato e puoi passare da un profilo all\'altro in qualsiasi momento.</string>

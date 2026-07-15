@@ -94,7 +94,7 @@
     <string name="message_turn_on_mobile_data">Мобильные данные выключены. Пожалуйста, откройте статус-бар и включите мобильные данные.</string>
     <string name="message_turn_off_mobile_data">Мобильные данные включены. Пожалуйста, откройте статус-бар и ВЫКЛЮЧИТЕ мобильные данные.</string>
     <string name="message_set_password">Качество вашего пароля недостаточно. Сейчас откроется экран настроек. Пожалуйста, измените пароль и нажмите Назад.</string>
-    <string name="switch_off_blockings">Отключаем блокировку...</string>
+    <string name="switch_off_blockings">Отключаем блокировку…</string>
     <string name="kiosk_mode_requires_overlays">Режим киоска не включен: не выдано разрешение на отображение поверх других окон приложению %s.</string>
     <string name="enter_admin_password">Введите пароль администратора</string>
     <string name="wrong_password">Неверный пароль</string>
@@ -120,7 +120,7 @@
     <string name="background_location">%s требует разрешения на определение местоположения в фоне. Нажмите \'Далее\', чтобы открыть разрешения. Выберите \'Местоположение\', и разрешите определение местоположения всегда.</string>
     <string name="location_disable">Отключить местоположение</string>
     <string name="background_location_continue">Далее</string>
-    <string name="initializing_mdm">Инициализация приложения, управляющего мобильным устройством...</string>
+    <string name="initializing_mdm">Инициализация приложения, управляющего мобильным устройством…</string>
     <string name="dialog_server_error_title">MDM сервер %s вернул неверный ответ. Пожалуйста, свяжитесь с администратором.</string>
     <string name="mdm_choice_message">Это устройство будет полностью управляться вашей организацией. Ваши данные не будут конфиденциальными и могут быть удалены или просмотрены вашим ИТ-администратором в любое время.</string>
     <string name="work_profile_message">Это устройство получит управляемый рабочий профиль, принадлежащий вашей организации. Рабочий профиль отделен от вашего личного профиля, и вы можете переключаться между профилями в любое время.</string>

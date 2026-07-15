@@ -94,7 +94,7 @@
 	<string name="message_turn_on_mobile_data">Mobil veri devre dışı! Lütfen durum çubuğunu açın ve mobil veriyi açın.</string>
 	<string name="message_turn_off_mobile_data">Mobil veri etkin. Lütfen durum çubuğunu açın ve mobil veriyi KAPATIN.</string>
 	<string name="message_set_password">Şifrenizin kalitesi yeterince iyi değil. Ayarlar ekranı açılacaktır. Lütfen şifreyi değiştirin ve Geri\'ye tıklayın.</string>
-	<string name="switch_off_blockings">Kısıtlamalar kapatılıyor...</string>
+	<string name="switch_off_blockings">Kısıtlamalar kapatılıyor…</string>
 	<string name="kiosk_mode_requires_overlays">Kiosk modu devre dışı bırakıldı: diğer pencerelerin üzerine çizim yapma izni yok. Lütfen %s\'nin diğer pencerelerin üzerine çizim yapmasına izin verin.</string>
 	<string name="enter_admin_password">Yönetici şifresini girin</string>
 	<string name="wrong_password">Yanlış şifre</string>
@@ -120,7 +120,7 @@
 	<string name="background_location">%s, arka plan konum iznini gerektirir. İzinleri açmak için \'Devam\'a tıklayın, \'Konum\'a tıklayın ve konumun her zaman belirlenmesine izin verin.</string>
 	<string name="location_disable">Konumu devre dışı bırak</string>
 	<string name="background_location_continue">Devam</string>
-	<string name="initializing_mdm">Mobil cihaz yönetim uygulaması başlatılıyor...</string>
+	<string name="initializing_mdm">Mobil cihaz yönetim uygulaması başlatılıyor…</string>
 	<string name="dialog_server_error_title">MDM sunucusu %s geçersiz bir yanıt döndürdü. Lütfen yöneticinizle iletişime geçin.</string>
 	<string name="mdm_choice_message">Bu cihaz kuruluşunuz tarafından tamamen yönetilecektir. Verileriniz özel olmayacak ve istediğiniz zaman BT yöneticiniz tarafından silinebilir veya incelenebilir.</string>
 	<string name="work_profile_message">Bu cihaz kuruluşunuza ait yönetilen bir çalışma profili alacaktır. Çalışma profili özel profilinizden ayrılmıştır ve istediğiniz zaman profiller arasında geçiş yapabilirsiniz.</string>

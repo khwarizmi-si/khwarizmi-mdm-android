@@ -94,7 +94,7 @@
     <string name="message_turn_on_mobile_data">Dữ liệu di động bị tắt! Vui lòng mở thanh trạng thái và bật dữ liệu di động.</string>
     <string name="message_turn_off_mobile_data">Dữ liệu di động đã bật. Vui lòng mở thanh trạng thái và TẮT dữ liệu di động.</string>
     <string name="message_set_password">Chất lượng mật khẩu của bạn không đủ tốt. Màn hình cài đặt sẽ mở. Vui lòng thay đổi mật khẩu và nhấn Quay lại.</string>
-    <string name="switch_off_blockings">Đang tắt hạn chế...</string>
+    <string name="switch_off_blockings">Đang tắt hạn chế…</string>
     <string name="kiosk_mode_requires_overlays">Chế độ kiosk bị tắt: không có quyền vẽ trên các cửa sổ khác. Vui lòng cho phép %s vẽ trên các cửa sổ khác.</string>
     <string name="enter_admin_password">Nhập mật khẩu quản trị viên</string>
     <string name="wrong_password">Mật khẩu sai</string>
@@ -120,7 +120,7 @@
     <string name="background_location">%s yêu cầu quyền định vị nền. Nhấn \'Tiếp tục\' để mở quyền, nhấn \'Vị trí\' và cho phép xác định vị trí luôn.</string>
     <string name="location_disable">Tắt định vị</string>
     <string name="background_location_continue">Tiếp tục</string>
-    <string name="initializing_mdm">Đang khởi tạo ứng dụng quản lý thiết bị di động...</string>
+    <string name="initializing_mdm">Đang khởi tạo ứng dụng quản lý thiết bị di động…</string>
     <string name="dialog_server_error_title">Máy chủ MDM %s trả về phản hồi không hợp lệ. Vui lòng liên hệ quản trị viên của bạn.</string>
     <string name="mdm_choice_message">Thiết bị này sẽ được quản lý hoàn toàn bởi tổ chức của bạn. Dữ liệu của bạn sẽ không riêng tư và có thể bị xóa hoặc xem xét bởi quản trị viên IT bất cứ lúc nào.</string>
     <string name="work_profile_message">Thiết bị này sẽ nhận được hồ sơ công việc được quản lý thuộc về tổ chức của bạn. Hồ sơ công việc được tách biệt với hồ sơ riêng tư của bạn và bạn có thể chuyển đổi giữa các hồ sơ bất cứ lúc nào.</string>

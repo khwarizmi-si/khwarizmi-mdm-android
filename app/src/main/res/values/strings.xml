@@ -38,7 +38,9 @@
     <string name="main_application_start">Menjalankan aplikasi</string>
     <string name="main_app_installing">Memasang aplikasi</string>
     <string name="main_app_downloading">Mengunduh aplikasi</string>
+    <string name="battery_percent" translatable="false">%1$d%%</string>
     <string name="download_progress_separator" translatable="false">/</string>
+    <string name="download_error_with_name" translatable="false">%1$s %2$s</string>
     <string name="main_app_downloading_error">Gagal mengunduh paket</string>
     <string name="main_app_removing">Menghapus aplikasi</string>
     <string name="main_file_downloading">Mengunduh berkas</string>
@@ -98,7 +100,7 @@
     <string name="message_turn_on_mobile_data">Data seluler dinonaktifkan! Buka bilah status dan aktifkan data seluler.</string>
     <string name="message_turn_off_mobile_data">Data seluler aktif. Buka bilah status dan MATIKAN data seluler.</string>
     <string name="message_set_password">Kualitas kata sandi Anda kurang memadai. Layar pengaturan akan terbuka. Ubah kata sandi lalu klik Kembali.</string>
-    <string name="switch_off_blockings">Menonaktifkan batasan...</string>
+    <string name="switch_off_blockings">Menonaktifkan batasan…</string>
     <string name="kiosk_mode_requires_overlays">Mode kiosk dinonaktifkan: tidak ada izin untuk menggambar di atas jendela lain. Izinkan %s menggambar di atas jendela lain.</string>
     <string name="enter_admin_password">Masukkan kata sandi administrator</string>
     <string name="wrong_password">Kata sandi salah</string>
@@ -126,7 +128,7 @@
     <string name="background_location">%s memerlukan izin lokasi latar belakang. Klik \'Lanjut\' untuk membuka izin, klik \'Lokasi\', lalu izinkan penentuan lokasi selalu.</string>
     <string name="location_disable">Nonaktifkan lokasi</string>
     <string name="background_location_continue">Lanjut</string>
-    <string name="initializing_mdm">Menginisialisasi aplikasi manajemen perangkat seluler...</string>
+    <string name="initializing_mdm">Menginisialisasi aplikasi manajemen perangkat seluler…</string>
     <string name="dialog_server_error_title">Server MDM %s mengembalikan respons yang tidak valid. Hubungi administrator Anda.</string>
     <string name="mdm_choice_message">Perangkat ini akan dikelola sepenuhnya oleh organisasi Anda. Data Anda tidak bersifat pribadi dan dapat dihapus atau ditinjau oleh admin TI Anda kapan saja.</string>
     <string name="work_profile_message">Perangkat ini akan mendapatkan profil kerja terkelola milik organisasi Anda. Profil kerja terpisah dari profil pribadi Anda dan Anda dapat beralih antar profil kapan saja.</string>
