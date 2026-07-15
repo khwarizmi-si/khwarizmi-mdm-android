@@ -114,6 +114,7 @@ public class LocationService extends Service {
     private Handler handler = new Handler();
     private GnssStatus.Callback gnssStatusCallback = null;
     private boolean gnssStatusRegistered = false;
+    private int lastSatelliteCount = -1;
 
     @Override
     public void onCreate() {
@@ -126,8 +127,13 @@ public class LocationService extends Service {
                 public void onSatelliteStatusChanged(@NonNull GnssStatus status) {
                     super.onSatelliteStatusChanged(status);
                     try {
-                        Log.d(Const.LOG_TAG, "Satellite status changed, count: " + status.getSatelliteCount());
-                        SettingsHelper.getInstance(LocationService.this.getApplicationContext()).setSatelliteCount(status.getSatelliteCount());
+                        int satelliteCount = status.getSatelliteCount();
+                        if (satelliteCount == lastSatelliteCount) {
+                            return;
+                        }
+                        lastSatelliteCount = satelliteCount;
+                        Log.d(Const.LOG_TAG, "Satellite status changed, count: " + satelliteCount);
+                        SettingsHelper.getInstance(LocationService.this.getApplicationContext()).setSatelliteCount(satelliteCount);
                     } catch (Exception e) {
                         RemoteLogger.log(LocationService.this, Const.LOG_WARN, "Failed to update satellite count: " + e.getMessage());
                     }
