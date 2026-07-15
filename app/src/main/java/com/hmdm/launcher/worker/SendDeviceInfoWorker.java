@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -15,6 +17,7 @@ import com.hmdm.launcher.json.DeviceInfo;
 import com.hmdm.launcher.server.ServerService;
 import com.hmdm.launcher.server.ServerServiceKeeper;
 import com.hmdm.launcher.util.DeviceInfoProvider;
+import com.hmdm.launcher.util.RemoteLogger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +57,7 @@ public class SendDeviceInfoWorker extends Worker {
         try {
             response = serverService.sendDevice(settingsHelper.getServerProject(), deviceInfo).execute();
         } catch (Exception e) {
-            e.printStackTrace();
+            RemoteLogger.log(context, Const.LOG_WARN, "Failed to send device info: " + e.getMessage());
         }
 
         try {
@@ -66,7 +69,9 @@ public class SendDeviceInfoWorker extends Worker {
                 return Result.success();
             }
         }
-        catch ( Exception e ) { e.printStackTrace(); }
+        catch ( Exception e ) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Failed to send device info to secondary server: " + e.getMessage());
+        }
 
         return Result.failure();
     }
@@ -78,5 +83,13 @@ public class SendDeviceInfoWorker extends Worker {
                         .setInitialDelay(SEND_DEVICE_INFO_PERIOD_MINS, TimeUnit.MINUTES)
                         .build();
         WorkManager.getInstance(context.getApplicationContext()).enqueueUniquePeriodicWork(WORK_TAG_DEVICEINFO, ExistingPeriodicWorkPolicy.REPLACE, request);
+    }
+
+    public static void requestDeviceInfoSending(Context context) {
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SendDeviceInfoWorker.class)
+                .addTag(Const.WORK_TAG_COMMON)
+                .build();
+        WorkManager.getInstance(context.getApplicationContext()).enqueueUniqueWork(
+                WORK_TAG_DEVICEINFO + ".now", ExistingWorkPolicy.REPLACE, request);
     }
 }

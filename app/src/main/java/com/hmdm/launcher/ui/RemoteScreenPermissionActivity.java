@@ -7,6 +7,8 @@ import android.media.projection.MediaProjectionConfig;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.service.RemoteScreenCaptureService;
@@ -17,6 +19,7 @@ public class RemoteScreenPermissionActivity extends Activity {
     public static final String EXTRA_SESSION_ID = "sessionId";
 
     private String sessionId;
+    private boolean permissionRequested;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +29,32 @@ public class RemoteScreenPermissionActivity extends Activity {
             finish();
             return;
         }
-        MediaProjectionManager manager =
-                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        Intent captureIntent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                ? manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
-                : manager.createScreenCaptureIntent();
-        startActivityForResult(captureIntent, REQUEST_MEDIA_PROJECTION);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!permissionRequested) {
+            permissionRequested = true;
+            new Handler(Looper.getMainLooper()).postDelayed(this::requestMediaProjection, 300);
+        }
+    }
+
+    private void requestMediaProjection() {
+        try {
+            MediaProjectionManager manager =
+                    (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            Intent captureIntent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                    ? manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+                    : manager.createScreenCaptureIntent();
+            RemoteLogger.log(this, Const.LOG_INFO, "Remote screen permission prompt requested");
+            startActivityForResult(captureIntent, REQUEST_MEDIA_PROJECTION);
+        } catch (Exception e) {
+            RemoteLogger.log(this, Const.LOG_WARN,
+                    "Remote screen permission prompt failed: " + e.getMessage());
+            RemoteScreenCaptureService.reportStatus(this, sessionId, "failed", "permission_prompt_failed");
+            finish();
+        }
     }
 
     @Override

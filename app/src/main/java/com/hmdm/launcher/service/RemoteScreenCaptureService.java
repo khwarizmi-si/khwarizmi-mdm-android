@@ -65,9 +65,16 @@ public class RemoteScreenCaptureService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null || ACTION_STOP.equals(intent.getAction())) {
-            stopCapture();
-            stopSelf();
-            return START_NOT_STICKY;
+            String stopSessionId = intent != null ? intent.getStringExtra(EXTRA_SESSION_ID) : null;
+            if (stopSessionId == null || stopSessionId.length() == 0 || stopSessionId.equals(sessionId)) {
+                stopCapture();
+                stopSelf();
+                return START_NOT_STICKY;
+            } else {
+                RemoteLogger.log(this, Const.LOG_WARN,
+                        "Remote screen stop ignored for stale session: " + stopSessionId);
+                return START_STICKY;
+            }
         }
 
         sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
@@ -104,12 +111,16 @@ public class RemoteScreenCaptureService extends Service {
         captureThread = new HandlerThread("RemoteScreenCapture");
         captureThread.start();
         Handler handler = new Handler(captureThread.getLooper());
+        final String captureSessionId = sessionId;
+        final MediaProjection captureProjection = projection;
         projection.registerCallback(new MediaProjection.Callback() {
             @Override
             public void onStop() {
-                reportStatus(RemoteScreenCaptureService.this, sessionId, "ended", "projection_stopped");
-                releaseCaptureResources(false);
-                stopSelf();
+                reportStatus(RemoteScreenCaptureService.this, captureSessionId, "ended", "projection_stopped");
+                if (projection == captureProjection) {
+                    releaseCaptureResources(false);
+                    stopSelf();
+                }
             }
         }, handler);
         try {
@@ -140,10 +151,11 @@ public class RemoteScreenCaptureService extends Service {
             return;
         }
         lastFrameAt = now;
-        executor.execute(() -> uploadFrame(image));
+        final String frameSessionId = sessionId;
+        executor.execute(() -> uploadFrame(frameSessionId, image));
     }
 
-    private void uploadFrame(Image image) {
+    private void uploadFrame(String frameSessionId, Image image) {
         try {
             Image.Plane plane = image.getPlanes()[0];
             ByteBuffer buffer = plane.getBuffer();
@@ -163,28 +175,40 @@ public class RemoteScreenCaptureService extends Service {
 
             String imageData = "data:image/jpeg;base64," +
                     Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP);
-            sendFrame(new RemoteScreenFrame(imageData, width, height));
+            sendFrame(frameSessionId, new RemoteScreenFrame(imageData, width, height));
         } catch (Exception e) {
             RemoteLogger.log(this, Const.LOG_WARN, "Remote screen frame upload failed: " + e.getMessage());
-            e.printStackTrace();
         } finally {
             image.close();
         }
     }
 
-    private void sendFrame(RemoteScreenFrame frame) throws Exception {
+    private void sendFrame(String frameSessionId, RemoteScreenFrame frame) throws Exception {
         SettingsHelper settings = SettingsHelper.getInstance(this);
         String deviceId = settings.getDeviceId();
         String signature = CryptoHelper.getSHA1String(BuildConfig.REQUEST_SIGNATURE + deviceId);
         ServerService service = ServerServiceKeeper.getServerServiceInstance(this);
-        retrofit2.Response<?> response = service.uploadRemoteScreenFrame(
-                settings.getServerProject(), deviceId, sessionId, signature, frame).execute();
+        retrofit2.Response<okhttp3.ResponseBody> response = service.uploadRemoteScreenFrame(
+                settings.getServerProject(), deviceId, frameSessionId, signature, frame).execute();
         if (!response.isSuccessful()) {
             RemoteLogger.log(this, Const.LOG_WARN,
                     "Remote screen frame rejected: HTTP " + response.code());
-            if (response.code() == 403 || response.code() == 404) {
-                reportStatus(this, sessionId, "failed", "frame_rejected_" + response.code());
-            }
+            stopRejectedSession(frameSessionId, "frame_rejected_" + response.code());
+            return;
+        }
+        if (response.body() != null) {
+            response.body().close();
+        }
+        if (response.errorBody() != null) {
+            response.errorBody().close();
+        }
+    }
+
+    private void stopRejectedSession(String rejectedSessionId, String reason) {
+        reportStatus(this, rejectedSessionId, "failed", reason);
+        if (rejectedSessionId != null && rejectedSessionId.equals(sessionId)) {
+            stopCapture();
+            stopSelf();
         }
     }
 
@@ -199,12 +223,18 @@ public class RemoteScreenCaptureService extends Service {
                 String deviceId = settings.getDeviceId();
                 String signature = CryptoHelper.getSHA1String(BuildConfig.REQUEST_SIGNATURE + deviceId);
                 ServerService service = ServerServiceKeeper.getServerServiceInstance(context);
-                retrofit2.Response<?> response = service.updateRemoteScreenStatus(
+                retrofit2.Response<okhttp3.ResponseBody> response = service.updateRemoteScreenStatus(
                         settings.getServerProject(), deviceId, sessionId, signature,
                         new RemoteScreenStatus(status, reason)).execute();
                 if (!response.isSuccessful()) {
                     RemoteLogger.log(context, Const.LOG_WARN,
                             "Remote screen status rejected: HTTP " + response.code());
+                }
+                if (response.body() != null) {
+                    response.body().close();
+                }
+                if (response.errorBody() != null) {
+                    response.errorBody().close();
                 }
             } catch (Exception e) {
                 RemoteLogger.log(context, Const.LOG_WARN,

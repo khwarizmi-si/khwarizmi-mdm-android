@@ -20,6 +20,7 @@
 package com.hmdm.launcher.util;
 
 import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -38,9 +39,12 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
 import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.db.DatabaseHelper;
+import com.hmdm.launcher.db.LocationTable;
 import com.hmdm.launcher.db.RemoteFileTable;
 import com.hmdm.launcher.helper.SettingsHelper;
 import com.hmdm.launcher.json.AppUsageEvent;
@@ -314,39 +318,79 @@ public class DeviceInfoProvider {
     public static DeviceInfo.Location getLocation(Context context) {
         try {
             LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-            Location lastLocationGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Location lastLocationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (locationManager == null || !hasLocationPermission(context)) {
+                return getCachedLocation(context);
+            }
 
-            if (lastLocationGps != null || lastLocationNetwork != null) {
+            Location lastLocation = newerLocation(
+                    getLastKnownLocation(locationManager, LocationManager.GPS_PROVIDER),
+                    getLastKnownLocation(locationManager, LocationManager.NETWORK_PROVIDER));
 
-                DeviceInfo.Location location = new DeviceInfo.Location();
-
-                Location lastLocation;
-                if (lastLocationGps == null || (lastLocationGps.getLatitude() == 0 && lastLocationGps.getLongitude() == 0)) {
-                    lastLocation = lastLocationNetwork;
-                } else if (lastLocationNetwork == null || (lastLocationNetwork.getLatitude() == 0 && lastLocationNetwork.getLongitude() == 0)) {
-                    lastLocation = lastLocationGps;
-                } else {
-                    // Get the latest location as the best one
-                    if (lastLocationGps.getTime() >= lastLocationNetwork.getTime()) {
-                        lastLocation = lastLocationGps;
-                    } else {
-                        lastLocation = lastLocationNetwork;
-                    }
-                }
-
-                if (lastLocation.getLatitude() == 0 && lastLocation.getLongitude() == 0) {
-                    return null;
-                }
-
-                location.setLat(lastLocation.getLatitude());
-                location.setLon(lastLocation.getLongitude());
-                location.setTs(lastLocation.getTime());
-                return location;
+            if (lastLocation != null) {
+                return toDeviceLocation(lastLocation);
             }
         } catch (Exception e) {
+            Log.w(Const.LOG_TAG, "Failed to get last known location: " + e.getMessage());
+        }
+        return getCachedLocation(context);
+    }
+
+    private static boolean hasLocationPermission(Context context) {
+        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @SuppressWarnings({"MissingPermission"})
+    private static Location getLastKnownLocation(LocationManager locationManager, String provider) {
+        try {
+            if (locationManager.isProviderEnabled(provider)) {
+                Location location = locationManager.getLastKnownLocation(provider);
+                return isValidLocation(location) ? location : null;
+            }
+        } catch (Exception e) {
+            Log.w(Const.LOG_TAG, "Failed to get " + provider + " location: " + e.getMessage());
         }
         return null;
+    }
+
+    private static Location newerLocation(Location first, Location second) {
+        if (first == null) {
+            return second;
+        }
+        if (second == null) {
+            return first;
+        }
+        return first.getTime() >= second.getTime() ? first : second;
+    }
+
+    private static boolean isValidLocation(Location location) {
+        return location != null && (location.getLatitude() != 0 || location.getLongitude() != 0);
+    }
+
+    private static DeviceInfo.Location toDeviceLocation(Location lastLocation) {
+        DeviceInfo.Location location = new DeviceInfo.Location();
+        location.setLat(lastLocation.getLatitude());
+        location.setLon(lastLocation.getLongitude());
+        location.setTs(lastLocation.getTime());
+        return location;
+    }
+
+    private static DeviceInfo.Location getCachedLocation(Context context) {
+        try {
+            LocationTable.Location latest = LocationTable.selectLatest(
+                    DatabaseHelper.instance(context).getReadableDatabase());
+            if (latest == null || (latest.getLat() == 0 && latest.getLon() == 0)) {
+                return null;
+            }
+            DeviceInfo.Location location = new DeviceInfo.Location();
+            location.setLat(latest.getLat());
+            location.setLon(latest.getLon());
+            location.setTs(latest.getTs());
+            return location;
+        } catch (Exception e) {
+            Log.w(Const.LOG_TAG, "Failed to get cached location: " + e.getMessage());
+            return null;
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -419,19 +463,26 @@ public class DeviceInfoProvider {
 
     @SuppressLint( { "MissingPermission" } )
     public static String getImsi(Context context, int slot) {
-        String imsi = null;
         try {
-            TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-            // This method is hidden, use reflection
-            // Thanks to https://stackoverflow.com/questions/36902916/subscriptionmanager-to-read-imsi-for-dual-sim-devices-ruuning-android-5-1
-            Class c = Class.forName("android.telephony.TelephonyManager");
-            Method m = c.getMethod("getSubscriberId", new Class[] {int.class});
-            Object o = m.invoke(telephonyManager, new Object[]{slot});
-            imsi = (String)o;
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (telephonyManager == null) {
+                return null;
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+                return slot == 0 ? getImsi(context) : null;
+            }
+            SubscriptionManager subscriptionManager = SubscriptionManager.from(context);
+            List<SubscriptionInfo> subscriptionList = subscriptionManager.getActiveSubscriptionInfoList();
+            if (subscriptionList == null || slot >= subscriptionList.size()) {
+                return null;
+            }
+            TelephonyManager subscriptionTelephonyManager = telephonyManager.createForSubscriptionId(
+                    subscriptionList.get(slot).getSubscriptionId());
+            return subscriptionTelephonyManager.getSubscriberId();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to get IMSI for slot " + slot + ": " + e.getMessage());
         }
-        return imsi;
+        return null;
     }
 
     @SuppressLint( { "MissingPermission" } )

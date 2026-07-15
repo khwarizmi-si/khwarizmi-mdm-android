@@ -27,6 +27,7 @@ import com.hmdm.launcher.helper.SettingsHelper;
 import com.hmdm.launcher.json.DeviceInfo;
 import com.hmdm.launcher.server.ServerService;
 import com.hmdm.launcher.server.ServerServiceKeeper;
+import com.hmdm.launcher.util.RemoteLogger;
 
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -50,7 +51,7 @@ public class SendDeviceInfoTask extends AsyncTask< DeviceInfo, Integer, Integer 
         try {
             response = serverService.sendDevice(settingsHelper.getServerProject(), info[ 0 ]).execute();
         } catch (Exception e) {
-            e.printStackTrace();
+            RemoteLogger.log(context, Const.LOG_WARN, "Failed to send device info: " + e.getMessage());
         }
 
         try {
@@ -61,7 +62,9 @@ public class SendDeviceInfoTask extends AsyncTask< DeviceInfo, Integer, Integer 
                 return Const.TASK_SUCCESS;
             }
         }
-        catch ( Exception e ) { e.printStackTrace(); }
+        catch ( Exception e ) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Failed to send device info to secondary server: " + e.getMessage());
+        }
 
         return Const.TASK_ERROR;
     }

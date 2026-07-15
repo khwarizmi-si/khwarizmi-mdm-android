@@ -107,6 +107,7 @@ import com.hmdm.launcher.server.ServerServiceKeeper;
 import com.hmdm.launcher.server.UnsafeOkHttpClient;
 import com.hmdm.launcher.service.LocationService;
 import com.hmdm.launcher.service.PluginApiService;
+import com.hmdm.launcher.service.PushLongPollingService;
 import com.hmdm.launcher.service.StatusControlService;
 import com.hmdm.launcher.task.GetServerConfigTask;
 import com.hmdm.launcher.task.SendDeviceInfoTask;
@@ -116,6 +117,7 @@ import com.hmdm.launcher.util.CrashLoopProtection;
 import com.hmdm.launcher.util.DeviceInfoProvider;
 import com.hmdm.launcher.util.InstallUtils;
 import com.hmdm.launcher.util.PreferenceLogger;
+import com.hmdm.launcher.util.PushNotificationMqttWrapper;
 import com.hmdm.launcher.util.RemoteLogger;
 import com.hmdm.launcher.util.SystemUtils;
 import com.hmdm.launcher.util.Utils;
@@ -133,6 +135,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -232,6 +235,9 @@ public class MainActivity
                 case Const.ACTION_UPDATE_CONFIGURATION:
                     RemoteLogger.log(context, Const.LOG_DEBUG, "Update configuration by MainActivity");
                     updateConfig(false);
+                    break;
+                case Const.ACTION_REMOTE_SCREEN_PERMISSION:
+                    startRemoteScreenPermission(intent.getStringExtra(RemoteScreenPermissionActivity.EXTRA_SESSION_ID));
                     break;
                 case Const.ACTION_HIDE_SCREEN:
                     RemoteLogger.log(MainActivity.this, Const.LOG_DEBUG, "Received ACTION_HIDE_SCREEN for package: " + intent.getStringExtra(Const.PACKAGE_NAME));
@@ -540,6 +546,7 @@ public class MainActivity
 
     private void initReceiver() {
         IntentFilter intentFilter = new IntentFilter(Const.ACTION_UPDATE_CONFIGURATION);
+        intentFilter.addAction(Const.ACTION_REMOTE_SCREEN_PERMISSION);
         intentFilter.addAction(Const.ACTION_HIDE_SCREEN);
         intentFilter.addAction(Const.ACTION_EXIT);
         intentFilter.addAction(Const.ACTION_POLICY_VIOLATION);
@@ -586,6 +593,16 @@ public class MainActivity
             bottomAppListAdapter.updateShortcuts(this);
             bottomAppListAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void startRemoteScreenPermission(String sessionId) {
+        if (sessionId == null || sessionId.length() == 0) {
+            RemoteLogger.log(this, Const.LOG_WARN, "Remote screen permission rejected: no session id");
+            return;
+        }
+        Intent intent = new Intent(this, RemoteScreenPermissionActivity.class);
+        intent.putExtra(RemoteScreenPermissionActivity.EXTRA_SESSION_ID, sessionId);
+        startActivity(intent);
     }
 
     private void lockOrientation() {
@@ -722,6 +739,7 @@ public class MainActivity
             startService(new Intent(MainActivity.this, CheckForegroundAppAccessibilityService.class));
         }
         startService(new Intent(MainActivity.this, StatusControlService.class));
+        startPushService();
 
         // Moved to onResume!
         // https://stackoverflow.com/questions/51863600/java-lang-illegalstateexception-not-allowed-to-start-service-intent-from-activ
@@ -732,6 +750,39 @@ public class MainActivity
         RemoteLogger.sendLogsToServer(MainActivity.this);
         AppUsageWorker.resetState();
         AppUsageWorker.scheduleUpload(MainActivity.this);
+    }
+
+    private void startPushService() {
+        if (!BuildConfig.ENABLE_PUSH || settingsHelper == null || settingsHelper.getConfig() == null) {
+            return;
+        }
+        String pushOptions = settingsHelper.getConfig().getPushOptions();
+        if (pushOptions == null) {
+            return;
+        }
+        int keepaliveTime = Const.DEFAULT_PUSH_ALARM_KEEPALIVE_TIME_SEC;
+        Integer configuredKeepalive = settingsHelper.getConfig().getKeepaliveTime();
+        if (configuredKeepalive != null && configuredKeepalive >= 30) {
+            keepaliveTime = configuredKeepalive;
+        }
+        if (pushOptions.equals(ServerConfig.PUSH_OPTIONS_MQTT_WORKER)
+                || pushOptions.equals(ServerConfig.PUSH_OPTIONS_MQTT_ALARM)) {
+            try {
+                URL url = new URL(settingsHelper.getBaseUrl());
+                PushNotificationMqttWrapper.getInstance().connect(this, url.getHost(), BuildConfig.MQTT_PORT,
+                        pushOptions, keepaliveTime, settingsHelper.getDeviceId(), null, null);
+            } catch (Exception e) {
+                RemoteLogger.log(this, Const.LOG_WARN, "Failed to start MQTT push: " + e.getMessage());
+            }
+        } else if (pushOptions.equals(ServerConfig.PUSH_OPTIONS_POLLING)) {
+            PushNotificationMqttWrapper.getInstance().disconnect(this);
+            Intent serviceStartIntent = new Intent(this, PushLongPollingService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceStartIntent);
+            } else {
+                startService(serviceStartIntent);
+            }
+        }
     }
 
     @Override

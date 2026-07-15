@@ -36,6 +36,7 @@ public class Const {
     public static final String ACTION_EXIT = "EXIT";
     public static final String ACTION_HIDE_SCREEN = "HIDE_SCREEN";
     public static final String ACTION_UPDATE_CONFIGURATION = "UPDATE_CONFIGURATION";
+    public static final String ACTION_REMOTE_SCREEN_PERMISSION = "REMOTE_SCREEN_PERMISSION";
     public static final String ACTION_POLICY_VIOLATION = "ACTION_POLICY_VIOLATION";
     public static final String ACTION_ADMIN = "ADMIN";
     public static final String ACTION_INSTALL_COMPLETE = "INSTALL_COMPLETE";

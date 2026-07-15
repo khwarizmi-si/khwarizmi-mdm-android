@@ -178,6 +178,12 @@ public class PushNotificationProcessor {
         }
         RemoteLogger.log(context, Const.LOG_INFO,
                 "Remote screen session requested" + (sessionId.isEmpty() ? "" : ": " + sessionId));
+        Intent localIntent = new Intent(Const.ACTION_REMOTE_SCREEN_PERMISSION);
+        localIntent.putExtra(RemoteScreenPermissionActivity.EXTRA_SESSION_ID, sessionId);
+        LocalBroadcastManager.getInstance(context).sendBroadcastSync(localIntent);
+        if (SettingsHelper.getInstance(context).isMainActivityRunning()) {
+            return;
+        }
         Intent intent = new Intent(context, RemoteScreenPermissionActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(RemoteScreenPermissionActivity.EXTRA_SESSION_ID, sessionId);
@@ -193,7 +199,12 @@ public class PushNotificationProcessor {
         String sessionId = payload != null ? payload.optString("sessionId", "") : "";
         Intent intent = new Intent(context, RemoteScreenCaptureService.class);
         intent.setAction(RemoteScreenCaptureService.ACTION_STOP);
-        context.stopService(intent);
+        intent.putExtra(RemoteScreenCaptureService.EXTRA_SESSION_ID, sessionId);
+        try {
+            context.startService(intent);
+        } catch (Exception e) {
+            context.stopService(intent);
+        }
         RemoteLogger.log(context, Const.LOG_INFO,
                 "Remote screen session stopped" + (sessionId.isEmpty() ? "" : ": " + sessionId));
     }

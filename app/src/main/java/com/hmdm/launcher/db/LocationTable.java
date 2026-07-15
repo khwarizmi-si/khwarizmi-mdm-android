@@ -23,6 +23,9 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.hmdm.launcher.Const;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +40,8 @@ public class LocationTable {
                     ")";
     private static final String SELECT_LAST_LOCATION =
             "SELECT * FROM locations ORDER BY ts LIMIT ?";
+    private static final String SELECT_LATEST_LOCATION =
+            "SELECT * FROM locations ORDER BY ts DESC LIMIT 1";
     private static final String INSERT_LOCATIONS =
             "INSERT OR IGNORE INTO locations(ts, lat, lon) " +
             "VALUES (?, ?, ?)";
@@ -112,7 +117,7 @@ public class LocationTable {
                     Double.toString(location.getLon())
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to insert location: " + e.getMessage());
         }
     }
 
@@ -123,7 +128,7 @@ public class LocationTable {
                     Long.toString(oldTs)
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to delete old locations: " + e.getMessage());
         }
     }
 
@@ -137,7 +142,7 @@ public class LocationTable {
             }
             db.setTransactionSuccessful();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to delete locations: " + e.getMessage());
         } finally {
             db.endTransaction();
         }
@@ -158,5 +163,17 @@ public class LocationTable {
         cursor.close();
 
         return result;
+    }
+
+    public static Location selectLatest(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery(SELECT_LATEST_LOCATION, null);
+        try {
+            if (cursor.moveToFirst()) {
+                return new Location(cursor);
+            }
+        } finally {
+            cursor.close();
+        }
+        return null;
     }
 }

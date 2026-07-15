@@ -43,12 +43,16 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.R;
+import com.hmdm.launcher.db.DatabaseHelper;
+import com.hmdm.launcher.db.LocationTable;
 import com.hmdm.launcher.helper.SettingsHelper;
 import com.hmdm.launcher.json.Application;
 import com.hmdm.launcher.json.ServerConfig;
+import com.hmdm.launcher.util.RemoteLogger;
 import com.hmdm.launcher.pro.service.CheckForegroundAppAccessibilityService;
 import com.hmdm.launcher.util.LegacyUtils;
 import com.hmdm.launcher.util.Utils;
+import com.hmdm.launcher.worker.SendDeviceInfoWorker;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,6 +68,8 @@ import java.util.List;
  * monitoring, status bar prevention, crashlytics) remain stubs until enabled.</p>
  */
 public class ProUtils {
+    private static final long LOCATION_DEVICE_INFO_UPLOAD_INTERVAL_MS = 5 * 60 * 1000L;
+    private static long lastLocationDeviceInfoUploadRequestTs = 0;
 
     // A settings package added to the lock task allowlist when settings access is granted
     private static final String SETTINGS_PACKAGE = "com.android.settings";
@@ -502,7 +508,28 @@ public class ProUtils {
     }
 
     public static void processLocation(Context context, Location location, String provider) {
-        // Stub    
+        if (location == null || (location.getLatitude() == 0 && location.getLongitude() == 0)) {
+            return;
+        }
+        try {
+            DatabaseHelper dbHelper = DatabaseHelper.instance(context);
+            LocationTable.insert(dbHelper.getWritableDatabase(), new LocationTable.Location(location));
+            LocationTable.deleteOldItems(dbHelper.getWritableDatabase());
+            RemoteLogger.log(context, Const.LOG_VERBOSE, "Stored " + provider + " location: lat="
+                    + location.getLatitude() + ", lon=" + location.getLongitude());
+            requestDeviceInfoUpload(context);
+        } catch (Exception e) {
+            Log.w(Const.LOG_TAG, "Failed to store " + provider + " location: " + e.getMessage());
+        }
+    }
+
+    private static void requestDeviceInfoUpload(Context context) {
+        long now = System.currentTimeMillis();
+        if (now - lastLocationDeviceInfoUploadRequestTs < LOCATION_DEVICE_INFO_UPLOAD_INTERVAL_MS) {
+            return;
+        }
+        lastLocationDeviceInfoUploadRequestTs = now;
+        SendDeviceInfoWorker.requestDeviceInfoSending(context);
     }
 
     public static String getAppName(Context context) {

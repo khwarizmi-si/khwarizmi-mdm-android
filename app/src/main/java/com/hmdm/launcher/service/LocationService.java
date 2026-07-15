@@ -113,6 +113,7 @@ public class LocationService extends Service {
 
     private Handler handler = new Handler();
     private GnssStatus.Callback gnssStatusCallback = null;
+    private boolean gnssStatusRegistered = false;
 
     @Override
     public void onCreate() {
@@ -128,7 +129,7 @@ public class LocationService extends Service {
                         Log.d(Const.LOG_TAG, "Satellite status changed, count: " + status.getSatelliteCount());
                         SettingsHelper.getInstance(LocationService.this.getApplicationContext()).setSatelliteCount(status.getSatelliteCount());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        RemoteLogger.log(LocationService.this, Const.LOG_WARN, "Failed to update satellite count: " + e.getMessage());
                     }
                 }
             };
@@ -161,39 +162,75 @@ public class LocationService extends Service {
     }
 
     private boolean requestLocationUpdates() {
-        if (updateViaGps && (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED || !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))) {
+        boolean hasFineLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED;
+        boolean hasCoarseLocation = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED;
+        boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean passiveEnabled = locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
+
+        if (updateViaGps && (!hasFineLocation || !gpsEnabled)) {
             updateViaGps = false;
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
+        if (!hasCoarseLocation && !hasFineLocation) {
             // No permission, so give up!
             return false;
         }
 
-        boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        boolean passiveEnabled = locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
         RemoteLogger.log(this, Const.LOG_VERBOSE,
                 "Request location updates. gps=" + gpsEnabled + ", network=" + networkEnabled + ", passive=" + passiveEnabled);
 
         locationManager.removeUpdates(networkLocationListener);
         locationManager.removeUpdates(gpsLocationListener);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_INTERVAL, 0, networkLocationListener);
-            if (updateViaGps) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_INTERVAL, 0, gpsLocationListener);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    locationManager.registerGnssStatusCallback(gnssStatusCallback, handler);
-                }
+        boolean requested = false;
+        if (networkEnabled && (hasCoarseLocation || hasFineLocation)) {
+            requested = requestProvider(LocationManager.NETWORK_PROVIDER, networkLocationListener);
+        }
+        if (updateViaGps) {
+            boolean gpsRequested = requestProvider(LocationManager.GPS_PROVIDER, gpsLocationListener);
+            requested = gpsRequested || requested;
+            if (gpsRequested && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                registerGnssStatusCallback();
             }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            unregisterGnssStatusCallback();
+        }
+        return requested;
+    }
+
+    private boolean requestProvider(String provider, LocationListener listener) {
+        try {
+            locationManager.requestLocationUpdates(provider, LOCATION_UPDATE_INTERVAL, 0, listener);
+            return true;
         } catch (Exception e) {
-            // Provider may not exist, so process it friendly
-            e.printStackTrace();
+            RemoteLogger.log(this, Const.LOG_WARN, "Failed to request " + provider + " location: " + e.getMessage());
             return false;
         }
+    }
 
-        return true;
+    private void registerGnssStatusCallback() {
+        if (gnssStatusRegistered) {
+            return;
+        }
+        try {
+            locationManager.registerGnssStatusCallback(gnssStatusCallback, handler);
+            gnssStatusRegistered = true;
+        } catch (Exception e) {
+            RemoteLogger.log(this, Const.LOG_WARN, "Failed to register GNSS status callback: " + e.getMessage());
+        }
+    }
+
+    private void unregisterGnssStatusCallback() {
+        if (!gnssStatusRegistered) {
+            return;
+        }
+        try {
+            locationManager.unregisterGnssStatusCallback(gnssStatusCallback);
+            gnssStatusRegistered = false;
+        } catch (Exception e) {
+            RemoteLogger.log(this, Const.LOG_WARN, "Failed to unregister GNSS status callback: " + e.getMessage());
+        }
     }
 
 
@@ -202,7 +239,7 @@ public class LocationService extends Service {
         locationManager.removeUpdates(networkLocationListener);
         locationManager.removeUpdates(gpsLocationListener);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            locationManager.unregisterGnssStatusCallback(gnssStatusCallback);
+            unregisterGnssStatusCallback();
         }
         started = false;
 

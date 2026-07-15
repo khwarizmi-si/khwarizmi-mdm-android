@@ -282,13 +282,19 @@ public class PushNotificationMqttWrapper {
         try {
             cancelReconnectionAfterFailure(context);
             RemoteLogger.log(context, Const.LOG_DEBUG, "MQTT client disconnected by user request");
-            client.disconnect();
+            connectHangupMonitorHandler.removeCallbacksAndMessages(null);
+            if (client != null) {
+                client.disconnect();
+                client.unregisterResources();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         client = null;
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(debugReceiver);
-        debugReceiver = null;
+        if (debugReceiver != null) {
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(debugReceiver);
+            debugReceiver = null;
+        }
     }
 
     private void cancelReconnectionAfterFailure(Context context) {
