@@ -358,6 +358,7 @@ public class MainActivity
     private boolean firstStartAfterProvisioning = false;
 
     @Override
+    @SuppressLint("DefaultUncaughtExceptionDelegation")
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
