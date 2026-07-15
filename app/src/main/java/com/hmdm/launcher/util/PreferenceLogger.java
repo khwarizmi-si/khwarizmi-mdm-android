@@ -29,12 +29,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class PreferenceLogger {
 
     private static boolean DEBUG = BuildConfig.DEVICE_ADMIN_DEBUG;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
 
     private static void _log(SharedPreferences preferences, String message) {
         Log.d(Const.LOG_TAG, message);
