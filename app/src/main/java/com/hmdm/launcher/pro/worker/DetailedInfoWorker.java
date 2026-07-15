@@ -96,7 +96,7 @@ public class DetailedInfoWorker extends Worker {
                 .setInputData(new Data.Builder().putBoolean(INPUT_REFRESH_CONFIG, true).build())
                 .build();
         WorkManager.getInstance(context.getApplicationContext())
-                .enqueueUniqueWork(WORK_TAG_DETAILED_INFO_CONFIG, ExistingWorkPolicy.REPLACE, request);
+                .enqueueUniqueWork(WORK_TAG_DETAILED_INFO_CONFIG, ExistingWorkPolicy.KEEP, request);
     }
 
     private static void schedulePeriodic(Context context, int intervalMins) {
@@ -105,7 +105,7 @@ public class DetailedInfoWorker extends Worker {
                 .addTag(Const.WORK_TAG_COMMON)
                 .build();
         WorkManager.getInstance(context.getApplicationContext())
-                .enqueueUniquePeriodicWork(WORK_TAG_DETAILED_INFO, ExistingPeriodicWorkPolicy.REPLACE, request);
+                .enqueueUniquePeriodicWork(WORK_TAG_DETAILED_INFO, ExistingPeriodicWorkPolicy.UPDATE, request);
     }
 
     private static void cancelPeriodic(Context context) {

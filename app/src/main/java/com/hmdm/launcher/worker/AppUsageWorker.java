@@ -69,7 +69,7 @@ public class AppUsageWorker extends Worker {
         if (!uploadScheduled) {
             uploadScheduled = true;
             WorkManager.getInstance(context.getApplicationContext())
-                    .enqueueUniqueWork(WORK_TAG_APP_USAGE, ExistingWorkPolicy.REPLACE, request);
+                    .enqueueUniqueWork(WORK_TAG_APP_USAGE, ExistingWorkPolicy.KEEP, request);
         }
     }
 

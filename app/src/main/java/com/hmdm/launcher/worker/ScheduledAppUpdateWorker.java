@@ -54,7 +54,7 @@ public class ScheduledAppUpdateWorker extends Worker {
                         .addTag(Const.WORK_TAG_COMMON)
                         .build();
         WorkManager.getInstance(context.getApplicationContext()).enqueueUniquePeriodicWork(WORK_TAG_SCHEDULED_UPDATES,
-                ExistingPeriodicWorkPolicy.REPLACE, queryRequest);
+                ExistingPeriodicWorkPolicy.KEEP, queryRequest);
     }
 
     private Context context;

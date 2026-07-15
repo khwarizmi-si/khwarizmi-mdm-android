@@ -216,6 +216,8 @@ public class MainActivity
     private boolean orientationLocked = false;
 
     private int REQUEST_CODE_GPS_STATE_CHANGE = 1;
+    private static final long SERVICES_START_THROTTLE_MS = 2000;
+    private long lastServicesStartAt;
 
     // This flag is used by the broadcast receiver to determine what to do if it gets a policy violation report
     private boolean isBackground;
@@ -631,8 +633,13 @@ public class MainActivity
     // Workaround against crash "App is in background" on Android 9: this is an Android OS bug
     // https://stackoverflow.com/questions/52013545/android-9-0-not-allowed-to-start-service-app-is-in-background-after-onresume
     private void startServicesWithRetry() {
+        long now = SystemClock.uptimeMillis();
+        if (now - lastServicesStartAt < SERVICES_START_THROTTLE_MS) {
+            return;
+        }
         try {
             startServices();
+            lastServicesStartAt = now;
         } catch (Exception e) {
             // Android OS bug!!!
             e.printStackTrace();
@@ -642,6 +649,7 @@ public class MainActivity
                 public void run() {
                     try {
                         startServices();
+                        lastServicesStartAt = SystemClock.uptimeMillis();
                     } catch (Exception e) {
                         // Still failed, now give up!
                         // startService may fail after resuming, but the service may be already running (there's a WorkManager)
@@ -746,9 +754,7 @@ public class MainActivity
         startService(new Intent(MainActivity.this, PluginApiService.class));
 
         // Send pending logs to server
-        RemoteLogger.resetState();
         RemoteLogger.sendLogsToServer(MainActivity.this);
-        AppUsageWorker.resetState();
         AppUsageWorker.scheduleUpload(MainActivity.this);
     }
 
