@@ -119,7 +119,7 @@ public class RemoteLogWorker extends Worker {
             }
         } catch (Exception e) {
             // Oops... WTF? We need to retry!
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to upload remote logs: " + e.getMessage());
             uploadScheduled = false;
             scheduleUpload(context, FIRE_PERIOD_MINS);
             return Result.failure();
@@ -134,20 +134,33 @@ public class RemoteLogWorker extends Worker {
 
         try {
             response = serverService.sendLogs(settingsHelper.getServerProject(), settingsHelper.getDeviceId(), logItems).execute();
-            return response.isSuccessful();
+            return isSuccessful(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to upload logs to primary server: " + e.getMessage());
         }
 
         try {
             if (response == null) {
                 response = secondaryServerService.
                         sendLogs(settingsHelper.getServerProject(), settingsHelper.getDeviceId(), logItems).execute();
-                return response.isSuccessful();
+                return isSuccessful(response);
             }
         } catch ( Exception e ) {
-            e.printStackTrace();
+            Log.w(Const.LOG_TAG, "Failed to upload logs to secondary server: " + e.getMessage());
         }
         return false;
+    }
+
+    private boolean isSuccessful(Response<ResponseBody> response) {
+        try {
+            return response != null && response.isSuccessful();
+        } finally {
+            if (response != null && response.body() != null) {
+                response.body().close();
+            }
+            if (response != null && response.errorBody() != null) {
+                response.errorBody().close();
+            }
+        }
     }
 }
