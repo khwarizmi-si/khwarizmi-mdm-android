@@ -28,9 +28,13 @@ import com.hmdm.launcher.util.DeviceInfoProvider;
 import com.hmdm.launcher.util.RemoteLogger;
 
 public class SimChangedReceiver extends BroadcastReceiver {
+    private static final String ACTION_SIM_STATE_CHANGED = "android.intent.action.SIM_STATE_CHANGED";
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        if (intent == null || !ACTION_SIM_STATE_CHANGED.equals(intent.getAction())) {
+            return;
+        }
         // SIM card changed, log the new IMSI and number
         String phoneNumber = null;
         try {
@@ -38,15 +42,15 @@ public class SimChangedReceiver extends BroadcastReceiver {
         } catch (Exception e) {
         }
 
-        String simState = intent.getExtras().getString("ss");
+        String simState = intent.getStringExtra("ss");
 
         String message = null;
-        if (simState.equals("LOADED")) {
+        if ("LOADED".equals(simState)) {
             message = "SIM card loaded";
             if (phoneNumber != null && phoneNumber.length() > 0) {
                 message += ". New phone number: " + phoneNumber;
             }
-        } else if (simState.equals("ABSENT")) {
+        } else if ("ABSENT".equals(simState)) {
             message = "SIM card removed";
         }
 

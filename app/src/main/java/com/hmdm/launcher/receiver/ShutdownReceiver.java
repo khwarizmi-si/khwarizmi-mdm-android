@@ -30,6 +30,9 @@ public class ShutdownReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        if (intent == null || !Intent.ACTION_SHUTDOWN.equals(intent.getAction())) {
+            return;
+        }
         RemoteLogger.log(context, Const.LOG_INFO, "Shutting down the device");
     }
 }

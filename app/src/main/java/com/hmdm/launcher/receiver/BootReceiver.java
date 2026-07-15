@@ -14,6 +14,9 @@ import com.hmdm.launcher.util.RemoteLogger;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent == null || !Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            return;
+        }
         Log.i(Const.LOG_TAG, "Got the BOOT_RECEIVER broadcast");
         RemoteLogger.log(context, Const.LOG_DEBUG, "Got the BOOT_RECEIVER broadcast");
 
