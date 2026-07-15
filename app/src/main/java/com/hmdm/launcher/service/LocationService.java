@@ -205,7 +205,11 @@ public class LocationService extends Service {
         return requested;
     }
 
+    @SuppressLint("MissingPermission")
     private boolean requestProvider(String provider, LocationListener listener) {
+        if (!hasLocationPermission(provider)) {
+            return false;
+        }
         try {
             locationManager.requestLocationUpdates(provider, LOCATION_UPDATE_INTERVAL, 0, listener);
             return true;
@@ -219,12 +223,23 @@ public class LocationService extends Service {
         if (gnssStatusRegistered) {
             return;
         }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         try {
             locationManager.registerGnssStatusCallback(gnssStatusCallback, handler);
             gnssStatusRegistered = true;
         } catch (Exception e) {
             RemoteLogger.log(this, Const.LOG_WARN, "Failed to register GNSS status callback: " + e.getMessage());
         }
+    }
+
+    private boolean hasLocationPermission(String provider) {
+        if (LocationManager.GPS_PROVIDER.equals(provider)) {
+            return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        }
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void unregisterGnssStatusCallback() {

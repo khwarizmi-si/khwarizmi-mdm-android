@@ -121,7 +121,7 @@
     <string name="device_locked">Perangkat ini (%s) telah dikunci oleh administrator.</string>
     <string name="fault_loop_detected">Ups, peluncur mengalami kesalahan yang tidak dapat dipulihkan! Hubungi administrator sistem Anda.</string>
     <string name="mqtt_service_text">Notifikasi push aktif</string>
-    <string name="remote_screen_service_text">Berbagi layar jarak jauh aktif</string>
+    <string name="remote_screen_service_text" translatable="false">Berbagi layar jarak jauh aktif</string>
     <string name="background_location">%s memerlukan izin lokasi latar belakang. Klik \'Lanjut\' untuk membuka izin, klik \'Lokasi\', lalu izinkan penentuan lokasi selalu.</string>
     <string name="location_disable">Nonaktifkan lokasi</string>
     <string name="background_location_continue">Lanjut</string>

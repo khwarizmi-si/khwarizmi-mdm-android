@@ -20,6 +20,7 @@
 package com.hmdm.launcher.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.bluetooth.BluetoothAdapter;
@@ -2755,6 +2756,7 @@ public class MainActivity
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {}
 
     @Override
