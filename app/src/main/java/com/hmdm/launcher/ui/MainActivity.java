@@ -1311,8 +1311,9 @@ public class MainActivity
             return;
         }
         WindowManager manager = ((WindowManager)getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
+        RelativeLayout root = findViewById(R.id.activity_main);
 
-        applicationNotAllowed = LayoutInflater.from( this ).inflate( R.layout.layout_application_not_allowed, null );
+        applicationNotAllowed = LayoutInflater.from( this ).inflate( R.layout.layout_application_not_allowed, root, false );
         applicationNotAllowed.findViewById( R.id.layout_application_not_allowed_continue ).setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick( View v ) {
@@ -1348,7 +1349,6 @@ public class MainActivity
         } catch ( Exception e ) {
             // No permission to show overlays; let's try to add view to main view
             try {
-                RelativeLayout root = findViewById(R.id.activity_main);
                 root.addView(applicationNotAllowed);
             } catch ( Exception e1 ) {
                 e1.printStackTrace();
@@ -1362,9 +1362,10 @@ public class MainActivity
         }
 
         WindowManager manager = ((WindowManager)getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
+        RelativeLayout root = findViewById(R.id.activity_main);
 
         // Reuse existing "Application not allowed" screen but hide buttons
-        lockScreen = LayoutInflater.from( this ).inflate( R.layout.layout_application_not_allowed, null );
+        lockScreen = LayoutInflater.from( this ).inflate( R.layout.layout_application_not_allowed, root, false );
         lockScreen.findViewById( R.id.layout_application_not_allowed_continue ).setVisibility(View.GONE);
         lockScreen.findViewById( R.id.layout_application_not_allowed_admin ).setVisibility(View.GONE);
         lockScreen.findViewById( R.id.package_id ).setVisibility(View.GONE);
@@ -1379,7 +1380,6 @@ public class MainActivity
         } catch ( Exception e ) {
             // No permission to show overlays; let's try to add view to main view
             try {
-                RelativeLayout root = findViewById(R.id.activity_main);
                 root.addView(lockScreen);
             } catch ( Exception e1 ) {
                 e1.printStackTrace();
