@@ -54,6 +54,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -323,7 +324,7 @@ public class InstallUtils {
             URL url = new URL(strUrl);
 
             HttpURLConnection connection;
-            if (BuildConfig.TRUST_ANY_CERTIFICATE && url.getProtocol().toLowerCase().equals("https")) {
+            if (BuildConfig.TRUST_ANY_CERTIFICATE && url.getProtocol().toLowerCase(Locale.ROOT).equals("https")) {
                 connection = (HttpsURLConnection) url.openConnection();
                 ((HttpsURLConnection) connection).setHostnameVerifier(DO_NOT_VERIFY);
             } else {

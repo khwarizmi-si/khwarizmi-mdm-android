@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -221,7 +222,7 @@ public class CertInstaller {
 
             HttpURLConnection connection;
             // Turn off certificate validity check because we didn't yet install trusted certs
-            if (url.getProtocol().toLowerCase().equals("https")) {
+            if (url.getProtocol().toLowerCase(Locale.ROOT).equals("https")) {
                 connection = (HttpsURLConnection) url.openConnection();
                 ((HttpsURLConnection) connection).setHostnameVerifier(DO_NOT_VERIFY);
             } else {

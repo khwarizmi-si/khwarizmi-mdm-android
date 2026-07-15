@@ -20,6 +20,7 @@
 package com.hmdm.launcher.helper;
 
 import java.security.MessageDigest;
+import java.util.Locale;
 
 public class CryptoHelper {
 
@@ -40,7 +41,7 @@ public class CryptoHelper {
                 hexChars[ i * 2 ] = hexArray[ v >>> 4 ];
                 hexChars[ i * 2 + 1 ] = hexArray[ v & 0x0F ];
             }
-            return new String( hexChars ).toUpperCase();
+            return new String( hexChars ).toUpperCase(Locale.ROOT);
         } catch ( Exception e ) { throw new RuntimeException( e ); }
     }
 
@@ -56,7 +57,7 @@ public class CryptoHelper {
                 hexChars[ i * 2 ] = hexArray[ v >>> 4 ];
                 hexChars[ i * 2 + 1 ] = hexArray[ v & 0x0F ];
             }
-            return new String( hexChars ).toUpperCase();
+            return new String( hexChars ).toUpperCase(Locale.ROOT);
         } catch ( Exception e ) { throw new RuntimeException( e ); }
     }
 

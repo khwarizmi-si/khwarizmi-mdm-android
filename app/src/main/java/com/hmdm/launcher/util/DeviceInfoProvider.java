@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DeviceInfoProvider {
@@ -568,7 +569,7 @@ public class DeviceInfoProvider {
     public static String getMacAddress() {
         try {
             return Utils.loadFileAsString("/sys/class/net/eth0/address")
-                    .toUpperCase().substring(0, 17);
+                    .toUpperCase(Locale.ROOT).substring(0, 17);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
