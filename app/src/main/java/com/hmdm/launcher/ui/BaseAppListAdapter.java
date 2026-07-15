@@ -391,7 +391,7 @@ public abstract class BaseAppListAdapter extends RecyclerView.Adapter<BaseAppLis
     }
 
     public boolean onKey(final int keyCode) {
-        AppInfo shortcutAppInfo = shortcuts.get(new Integer(keyCode));
+        AppInfo shortcutAppInfo = shortcuts.get(Integer.valueOf(keyCode));
         if (shortcutAppInfo != null) {
             chooseApp(shortcutAppInfo);
             return true;

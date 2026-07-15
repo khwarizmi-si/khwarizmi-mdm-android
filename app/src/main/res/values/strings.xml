@@ -38,6 +38,7 @@
     <string name="main_application_start">Menjalankan aplikasi</string>
     <string name="main_app_installing">Memasang aplikasi</string>
     <string name="main_app_downloading">Mengunduh aplikasi</string>
+    <string name="download_progress_separator" translatable="false">/</string>
     <string name="main_app_downloading_error">Gagal mengunduh paket</string>
     <string name="main_app_removing">Menghapus aplikasi</string>
     <string name="main_file_downloading">Mengunduh berkas</string>

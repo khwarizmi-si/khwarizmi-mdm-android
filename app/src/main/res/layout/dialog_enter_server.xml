@@ -55,8 +55,9 @@
 
         <EditText
             android:focusable="true"
-            android:inputType="text"
+            android:inputType="textUri"
             android:imeOptions="actionDone"
+            android:importantForAutofill="no"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/server_url"
