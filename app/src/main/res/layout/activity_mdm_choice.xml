@@ -25,63 +25,55 @@
         <variable name="message" type="String"/>
     </data>
 
-    <RelativeLayout 
+    <LinearLayout
         android:id="@+id/activity_initial_setup"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
         tools:context="com.hmdm.launcher.ui.InitialSetupActivity">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="@dimen/setup_logo_size"
+            android:layout_height="@dimen/setup_logo_size"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:contentDescription="@string/white_app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_khwarizmi"/>
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:gravity="center"
-            android:orientation="vertical"
+            android:text="@string/white_app_name"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/wizardPrimaryDark"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:gravity="center"
+            android:text="@string/mdm_choice_message"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_administrator_mode_continue"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:background="@color/wizardPrimary"
+            android:textColor="@color/white"
+            android:onClick="continueSetup"
             android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin">
+            ></Button>
 
-            <ImageView
-                android:layout_width="@dimen/setup_logo_size"
-                android:layout_height="@dimen/setup_logo_size"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:contentDescription="@string/white_app_name"
-                android:scaleType="fitCenter"
-                android:src="@drawable/logo_khwarizmi"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:gravity="center"
-                android:text="@string/white_app_name"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="@color/wizardPrimaryDark"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:gravity="center"
-                android:text="@string/mdm_choice_message"
-                android:textAppearance="?android:textAppearanceMedium" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dialog_administrator_mode_continue"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:background="@color/wizardPrimary"
-                android:textColor="@color/white"
-                android:onClick="continueSetup"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                ></Button>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </layout>
