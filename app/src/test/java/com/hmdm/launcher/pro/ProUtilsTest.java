@@ -3,6 +3,7 @@ package com.hmdm.launcher.pro;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ProUtilsTest {
@@ -21,5 +22,12 @@ public class ProUtilsTest {
     @Test
     public void isSystemSupportPackageRejectsUnknownUserApps() {
         assertFalse(ProUtils.isSystemSupportPackage("com.example.unapproved"));
+    }
+
+    @Test
+    public void resolvesBlankKioskAppToTheLauncher() {
+        assertEquals("com.alkhwarizmi.mdm", ProUtils.resolveKioskApp(null, "com.alkhwarizmi.mdm"));
+        assertEquals("com.alkhwarizmi.mdm", ProUtils.resolveKioskApp("  ", "com.alkhwarizmi.mdm"));
+        assertEquals("com.example.kiosk", ProUtils.resolveKioskApp("com.example.kiosk", "com.alkhwarizmi.mdm"));
     }
 }

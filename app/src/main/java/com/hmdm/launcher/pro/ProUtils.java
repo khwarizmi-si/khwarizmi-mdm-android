@@ -108,6 +108,11 @@ public class ProUtils {
         return config != null && config.isKioskMode();
     }
 
+    public static String resolveKioskApp(String configuredKioskApp, String launcherPackage) {
+        return configuredKioskApp == null || configuredKioskApp.trim().isEmpty()
+                ? launcherPackage : configuredKioskApp;
+    }
+
     public static void initCrashlytics(Context context) {
         // Stub
     }
@@ -335,10 +340,7 @@ public class ProUtils {
         if (config == null) {
             return false;
         }
-        String kioskApp = config.getMainApp();
-        if (kioskApp == null || kioskApp.trim().isEmpty()) {
-            return false;
-        }
+        String kioskApp = resolveKioskApp(config.getMainApp(), context.getPackageName());
         // The launcher itself can always act as the kiosk app
         if (kioskApp.equals(context.getPackageName())) {
             return true;

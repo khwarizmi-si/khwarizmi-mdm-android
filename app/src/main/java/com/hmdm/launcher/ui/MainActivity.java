@@ -1106,7 +1106,8 @@ public class MainActivity
 
     private void createButtons() {
         ServerConfig config = settingsHelper.getConfig();
-        if (ProUtils.kioskModeRequired(this) && !getPackageName().equals(settingsHelper.getConfig().getMainApp())) {
+        if (ProUtils.kioskModeRequired(this) && !getPackageName().equals(
+                ProUtils.resolveKioskApp(settingsHelper.getConfig().getMainApp(), getPackageName()))) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                     !Settings.canDrawOverlays( this ) &&
                     !BuildConfig.ENABLE_KIOSK_WITHOUT_OVERLAYS) {
@@ -1536,7 +1537,8 @@ public class MainActivity
     @Override
     public void onConfigUpdateNetworkError(String errorText) {
         if (ProUtils.isKioskModeRunning(this) && settingsHelper.getConfig() != null &&
-                !getPackageName().equals(settingsHelper.getConfig().getMainApp())) {
+                !getPackageName().equals(ProUtils.resolveKioskApp(
+                        settingsHelper.getConfig().getMainApp(), getPackageName()))) {
             interruptResumeFlow = true;
             Intent restoreLauncherIntent = new Intent(MainActivity.this, MainActivity.class);
             restoreLauncherIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -1839,8 +1841,8 @@ public class MainActivity
         }
 
         if (ProUtils.kioskModeRequired(this)) {
-            String kioskApp = settingsHelper.getConfig().getMainApp();
-            if (kioskApp != null && kioskApp.trim().length() > 0 &&
+            String kioskApp = ProUtils.resolveKioskApp(settingsHelper.getConfig().getMainApp(), getPackageName());
+            if (
                     // If Headwind MDM itself is set as kiosk app, the kiosk mode is already turned on;
                     // So here we just proceed to drawing the content
                     (!kioskApp.equals(getPackageName()) || !ProUtils.isKioskModeRunning(this))) {
@@ -2452,7 +2454,7 @@ public class MainActivity
     public void networkErrorWifiClicked( View view ) {
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Const.ACTION_ENABLE_SETTINGS));
         if (ProUtils.kioskModeRequired(this) && ProUtils.isKioskModeRunning(this)) {
-            String kioskApp = settingsHelper.getConfig().getMainApp();
+            String kioskApp = ProUtils.resolveKioskApp(settingsHelper.getConfig().getMainApp(), getPackageName());
             ProUtils.startCosuKioskMode(kioskApp, this, true);
         }
         handler.postDelayed(new Runnable() {

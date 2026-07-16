@@ -133,15 +133,11 @@ public class GetServerConfigTask extends AsyncTask< Void, Integer, Integer > {
                 settingsHelper.setEnrollOptionConfigName(null);
                 settingsHelper.setEnrollOptionGroup(null);
 
-                // User-friendly error report if a content app in kiosk mode is not set
-                if (ProUtils.kioskModeRequired(context) &&
-                        (settingsHelper.getConfig().getMainApp() == null || settingsHelper.getConfig().getMainApp().trim().equals(""))) {
-                    throw new Exception("Content app in kiosk mode is not set");
-                }
+                String kioskApp = ProUtils.resolveKioskApp(settingsHelper.getConfig().getMainApp(), context.getPackageName());
 
                 // Prevent from occasional launch in the kiosk mode without any possibility to exit!
                 if (ProUtils.kioskModeRequired(context) &&
-                        !context.getPackageName().equals(settingsHelper.getConfig().getMainApp()) &&
+                        !context.getPackageName().equals(kioskApp) &&
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                         !Settings.canDrawOverlays(context) && !BuildConfig.ENABLE_KIOSK_WITHOUT_OVERLAYS) {
                         RemoteLogger.log(context, Const.LOG_WARN, "Kiosk mode disabled: no permission to draw over other windows.");
