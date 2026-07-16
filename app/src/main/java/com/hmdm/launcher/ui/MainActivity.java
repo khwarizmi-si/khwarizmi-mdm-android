@@ -217,6 +217,7 @@ public class MainActivity
     private boolean orientationLocked = false;
 
     private int REQUEST_CODE_GPS_STATE_CHANGE = 1;
+    private int REQUEST_CODE_ACCESSIBILITY_SETTINGS = 2;
     private static final long SERVICES_START_THROTTLE_MS = 2000;
     private long lastServicesStartAt;
 
@@ -545,6 +546,8 @@ public class MainActivity
         if (requestCode == REQUEST_CODE_GPS_STATE_CHANGE) {
             // User changed GPS state, let's update location service
             startLocationServiceWithRetry();
+        } else if (requestCode == REQUEST_CODE_ACCESSIBILITY_SETTINGS) {
+            ProUtils.setAccessibilitySettingsAccess(this, false);
         }
     }
 
@@ -1091,7 +1094,13 @@ public class MainActivity
         accessibilityServiceDialog = null;
 
         Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-        startActivityForResult(intent, 0);
+        ProUtils.setAccessibilitySettingsAccess(this, true);
+        try {
+            startActivityForResult(intent, REQUEST_CODE_ACCESSIBILITY_SETTINGS);
+        } catch (Exception e) {
+            ProUtils.setAccessibilitySettingsAccess(this, false);
+            throw e;
+        }
     }
 
     // Accessibility services are needed in the Pro-version only

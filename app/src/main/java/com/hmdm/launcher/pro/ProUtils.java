@@ -477,10 +477,7 @@ public class ProUtils {
 
         ServerConfig config = SettingsHelper.getInstance(activity.getApplicationContext()).getConfig();
         List<String> packages = getLockTaskPackages(activity.getPackageName(), kioskApp,
-                config == null ? null : config.getApplications());
-        if (enableSettings) {
-            packages.add(SETTINGS_PACKAGE);
-        }
+                config == null ? null : config.getApplications(), enableSettings);
         try {
             dpm.setLockTaskPackages(admin, packages.toArray(new String[0]));
         } catch (Exception e) {
@@ -490,6 +487,11 @@ public class ProUtils {
 
     static List<String> getLockTaskPackages(String launcherPackage, String kioskApp,
                                             List<Application> applications) {
+        return getLockTaskPackages(launcherPackage, kioskApp, applications, false);
+    }
+
+    static List<String> getLockTaskPackages(String launcherPackage, String kioskApp,
+                                            List<Application> applications, boolean enableSettings) {
         List<String> packages = new ArrayList<>();
         packages.add(launcherPackage);
         if (kioskApp != null && !kioskApp.trim().isEmpty() && !packages.contains(kioskApp)) {
@@ -509,7 +511,20 @@ public class ProUtils {
                 packages.add(systemPackage);
             }
         }
+        if (enableSettings) {
+            packages.add(SETTINGS_PACKAGE);
+        }
         return packages;
+    }
+
+    public static void setAccessibilitySettingsAccess(Activity activity, boolean enabled) {
+        if (!kioskModeRequired(activity)) {
+            return;
+        }
+        ServerConfig config = SettingsHelper.getInstance(activity.getApplicationContext()).getConfig();
+        if (config != null) {
+            applyLockTaskPackages(resolveKioskApp(config.getMainApp(), activity.getPackageName()), activity, enabled);
+        }
     }
 
     public static void unlockKiosk(Activity activity) {

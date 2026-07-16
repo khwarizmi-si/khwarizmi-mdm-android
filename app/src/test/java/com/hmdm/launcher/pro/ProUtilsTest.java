@@ -49,4 +49,12 @@ public class ProUtilsTest {
         assertFalse(ProUtils.getLockTaskPackages("com.alkhwarizmi.mdm", "com.alkhwarizmi.mdm",
                 Arrays.asList(shown, hidden)).contains("com.example.hidden"));
     }
+
+    @Test
+    public void onlyTemporarilyAllowsSettingsForAccessibilitySetup() {
+        assertFalse(ProUtils.getLockTaskPackages("com.alkhwarizmi.mdm", "com.alkhwarizmi.mdm",
+                null, false).contains("com.android.settings"));
+        assertTrue(ProUtils.getLockTaskPackages("com.alkhwarizmi.mdm", "com.alkhwarizmi.mdm",
+                null, true).contains("com.android.settings"));
+    }
 }
