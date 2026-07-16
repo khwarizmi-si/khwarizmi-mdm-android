@@ -36,6 +36,7 @@ public class InstalledApp {
     private String version;
     private Long versionCode;
     private boolean system;
+    private boolean launchable;
     private String installer;
     private Long firstInstall;
     private Long lastUpdate;
@@ -81,6 +82,14 @@ public class InstalledApp {
 
     public void setSystem(boolean system) {
         this.system = system;
+    }
+
+    public boolean isLaunchable() {
+        return launchable;
+    }
+
+    public void setLaunchable(boolean launchable) {
+        this.launchable = launchable;
     }
 
     public String getInstaller() {

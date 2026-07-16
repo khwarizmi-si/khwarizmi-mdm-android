@@ -241,6 +241,7 @@ public class DeviceInfoProvider {
                         ? packageInfo.getLongVersionCode()
                         : (long) packageInfo.versionCode);
                 app.setSystem((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
+                app.setLaunchable(packageManager.getLaunchIntentForPackage(packageInfo.packageName) != null);
                 try {
                     app.setInstaller(packageManager.getInstallerPackageName(packageInfo.packageName));
                 } catch (Exception e) {
