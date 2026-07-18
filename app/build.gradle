@@ -139,7 +139,7 @@ android {
         buildConfigField("String", "LIBRARY_API_KEY", stringConfig("hmdmLibraryApiKey", "HMDM_LIBRARY_API_KEY", ""))
         // Use accessibility services to control unwanted apps
         // (this option is banned by Play Protect in some countries!)
-        buildConfigField("Boolean", "USE_ACCESSIBILITY", "false")
+        buildConfigField("Boolean", "USE_ACCESSIBILITY", "true")
         // Disabled by default because it executes arbitrary shell commands from remote push payloads.
         buildConfigField("Boolean", "ENABLE_REMOTE_SHELL", booleanConfig("hmdmEnableRemoteShell", "HMDM_ENABLE_REMOTE_SHELL", false))
     }

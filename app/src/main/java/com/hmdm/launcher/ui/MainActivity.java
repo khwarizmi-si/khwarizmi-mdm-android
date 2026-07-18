@@ -1008,9 +1008,9 @@ public class MainActivity
         }
 
         int accessibilityService = preferences.getInt( Const.PREFERENCES_ACCESSIBILITY_SERVICE, - 1 );
-        // Check the same condition as for usage stats here
-        // because accessibility is used as a secondary condition when usage stats is not available
-        if (ProUtils.isPro() && BuildConfig.USE_ACCESSIBILITY && accessibilityService == -1 && needRequestUsageStats()) {
+        // Remote control also needs Accessibility in kiosk mode, where usage statistics is not requested.
+        if (ProUtils.isPro() && BuildConfig.USE_ACCESSIBILITY && accessibilityService == -1 &&
+                (needRequestUsageStats() || ProUtils.kioskModeRequired(this))) {
             if ( checkAccessibilityService() ) {
                 preferences.
                         edit().
