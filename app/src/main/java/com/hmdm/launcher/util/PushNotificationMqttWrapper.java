@@ -39,6 +39,7 @@ import androidx.work.WorkerParameters;
 import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.helper.CryptoHelper;
+import com.hmdm.launcher.json.PushMessage;
 import com.hmdm.launcher.json.PushMessageJson;
 import com.hmdm.launcher.json.ServerConfig;
 import com.hmdm.launcher.worker.PushNotificationProcessor;
@@ -234,6 +235,9 @@ public class PushNotificationMqttWrapper {
                         if (!PushSecurity.isMqttMessageAllowed(messageType, payload, signature, BuildConfig.REQUEST_SIGNATURE)) {
                             RemoteLogger.log(context, Const.LOG_WARN, "Rejected unsigned MQTT push message: " + messageType);
                             return;
+                        }
+                        if (PushMessage.TYPE_REMOTE_SCREEN_CONTROL.equals(messageType)) {
+                            Log.i(Const.LOG_TAG, "Remote screen control received");
                         }
                         PushMessageJson msg = new PushMessageJson(messageType, payload);
                         PushNotificationProcessor.process(msg, context);

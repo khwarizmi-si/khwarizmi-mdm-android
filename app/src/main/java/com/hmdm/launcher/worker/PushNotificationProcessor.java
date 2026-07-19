@@ -211,7 +211,9 @@ public class PushNotificationProcessor {
 
     private static void controlRemoteScreen(Context context, JSONObject payload) {
         String sessionId = payload != null ? payload.optString("sessionId", "") : "";
+        Log.i(Const.LOG_TAG, "Remote screen control handling");
         if (!RemoteScreenCaptureService.isActiveSession(sessionId)) {
+            Log.w(Const.LOG_TAG, "Remote screen control rejected: inactive session");
             RemoteLogger.log(context, Const.LOG_WARN, "Remote screen control rejected: inactive session");
             return;
         }
@@ -283,6 +285,7 @@ public class PushNotificationProcessor {
 
     private static void performRemoteScreenKey(Context context, String type) {
         if (CheckForegroundAppAccessibilityService.performGlobalAction(type)) {
+            Log.i(Const.LOG_TAG, "Remote screen " + type + " sent by accessibility");
             RemoteLogger.log(context, Const.LOG_INFO, "Remote screen " + type + " sent by accessibility");
             return;
         }

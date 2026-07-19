@@ -51,6 +51,16 @@ public class PushSecurityTest {
                 PushMessage.TYPE_LOCK, null, signature, "secret"));
     }
 
+    @Test
+    public void requiresSignatureForRemoteScreenControl() throws Exception {
+        assertFalse(PushSecurity.isMqttMessageAllowed(
+                PushMessage.TYPE_REMOTE_SCREEN_CONTROL, null, null, "secret"));
+        assertTrue(PushSecurity.isMqttMessageAllowed(
+                PushMessage.TYPE_REMOTE_SCREEN_CONTROL, null,
+                PushSecurity.calculatePushSignature("secret", PushMessage.TYPE_REMOTE_SCREEN_CONTROL, null),
+                "secret"));
+    }
+
     @Test(expected = IOException.class)
     public void rejectsTraversalOutsideStorageRoot() throws Exception {
         PushSecurity.resolveChildPath(new File("/tmp/root"), "../outside.txt");
