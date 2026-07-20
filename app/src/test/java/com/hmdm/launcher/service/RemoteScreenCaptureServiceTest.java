@@ -17,8 +17,8 @@ public class RemoteScreenCaptureServiceTest {
 
     @Test
     public void onlyCapturesWhenThePreviousFrameIsNotBeingProcessed() {
-        assertTrue(RemoteScreenCaptureService.shouldCaptureFrame(1000, 0, false));
-        assertFalse(RemoteScreenCaptureService.shouldCaptureFrame(1000, 500, false));
+        assertTrue(RemoteScreenCaptureService.shouldCaptureFrame(500, 0, false));
+        assertFalse(RemoteScreenCaptureService.shouldCaptureFrame(499, 0, false));
         assertFalse(RemoteScreenCaptureService.shouldCaptureFrame(2000, 0, true));
     }
 }
