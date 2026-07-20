@@ -53,7 +53,7 @@ public class RemoteScreenCaptureService extends Service {
 
     private static final int NOTIFICATION_ID = 118;
     private static final int CAPTURE_SCALE_DIVISOR = 3;
-    private static final long FRAME_INTERVAL_MS = 125;
+    private static final long FRAME_INTERVAL_MS = 80;
     private static final long HEARTBEAT_INTERVAL_MS = 5000;
     private static volatile String activeSessionId;
     public static final String CHANNEL_ID = RemoteScreenCaptureService.class.getName();
