@@ -52,6 +52,7 @@ public class RemoteScreenCaptureService extends Service {
     public static final String EXTRA_RESULT_DATA = "resultData";
 
     private static final int NOTIFICATION_ID = 118;
+    private static final int CAPTURE_SCALE_DIVISOR = 2;
     private static final long FRAME_INTERVAL_MS = 200;
     private static final long HEARTBEAT_INTERVAL_MS = 5000;
     private static volatile String activeSessionId;
@@ -131,11 +132,13 @@ public class RemoteScreenCaptureService extends Service {
             }
         }, captureHandler);
         try {
-            imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels,
-                    PixelFormat.RGBA_8888, 2);
+            int captureWidth = captureDimension(metrics.widthPixels);
+            int captureHeight = captureDimension(metrics.heightPixels);
+            imageReader = ImageReader.newInstance(captureWidth, captureHeight,
+                    PixelFormat.RGBA_8888, 3);
             imageReader.setOnImageAvailableListener(this::onImageAvailable, captureHandler);
             virtualDisplay = projection.createVirtualDisplay("RemoteScreen",
-                    metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
+                    captureWidth, captureHeight, metrics.densityDpi,
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                     imageReader.getSurface(), null, captureHandler);
             activeSessionId = captureSessionId;
@@ -295,6 +298,10 @@ public class RemoteScreenCaptureService extends Service {
 
     static boolean shouldCaptureFrame(long now, long previousFrameAt, boolean frameProcessing) {
         return !frameProcessing && now - previousFrameAt >= FRAME_INTERVAL_MS;
+    }
+
+    static int captureDimension(int fullDimension) {
+        return Math.max(1, fullDimension / CAPTURE_SCALE_DIVISOR);
     }
 
     private static void clearActiveSession(String sessionId) {
